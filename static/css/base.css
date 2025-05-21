@@ -173,11 +173,11 @@ th {
     background-color: #45a049;
 }
 
-.update-task-button {
+.mark-complete-button {
     background-color: #00796b;
 }
 
-.update-task-button:hover {
+.mark-complete-button:hover {
     background-color: #004d40;
 }
 
@@ -197,9 +197,8 @@ th {
     background-color: #ec971f;
 }
 
-.update-task-button {
+.mark-complete-button {
     display: block;
-    padding: 8;
     cursor: pointer;
     padding: 8px;
     text-align: center;
@@ -210,7 +209,6 @@ th {
 
 .delete-task-button {
     display: block;
-    padding: 8;
     cursor: pointer;
     padding: 8px;
     text-align: center;

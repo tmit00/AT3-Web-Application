@@ -6,7 +6,7 @@ def user_create_task(title, description, priority):
     db.session.commit()
     return new_task
 
-def user_update_task(task_id, is_complete=True):
+def user_mark_complete(task_id, is_complete=True):
     task = Task.query.get(task_id)
     if task:
         task.is_complete = is_complete

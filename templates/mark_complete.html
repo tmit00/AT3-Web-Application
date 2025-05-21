@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Task</title>
+    <title>Confirm Mark Complete</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -45,7 +45,7 @@
             margin: 0;
             margin-right: 10px;
         }
-        button {
+        button, .button {
             padding: 10px 15px;
             background-color: #008080; /* Teal color for the button */
             color: white;
@@ -53,9 +53,21 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
+            text-decoration: none;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .button.cancel {
+            background-color: #888;
+            margin-bottom: 0px;
+            display: flex;
+            flex-direction: column;
         }
         button:hover {
             background-color: #006666; /* Darker teal for hover state */
+        }
+        .button.cancel:hover {
+            background-color: #555;
         }
         .error {
             color: red;
@@ -65,19 +77,16 @@
 </head>
 <body>
     <div class="container">
-        <h1>Update Task</h1>
+        <h1>Mark Task "{{ task.title }}" as complete?</h1>
         {% if error %}
-            <div class="error">{{ error }}</div>
-        {% endif %}
-        <form action="{{ url_for('todo_routes.update_task') }}" method="post">
-            <label for="id">Task ID:</label>
-            <input type="text" id="id" name="id" placeholder="Enter Task ID to update" required>
-            <div class="checkbox-container">
-                <label for="completed">Completed:</label>
-                <input type="checkbox" id="completed" name="completed">
-            </div>
-            <button type="submit">Update Task</button>
+            <p class="error">{{ error }}</p>
+            <a href="{{ url_for('dashboard') }}" class="button cancel">Back</a>
+        {% else %}
+        <form action="{{ url_for('todo_routes.mark_complete', task_id=task.id) }}" method="post">
+            <button type="submit">Yes, Mark Complete</button>
+            <a href="{{ url_for('dashboard') }}" class="button cancel">Cancel</a>
         </form>
+        {% endif %}
     </div>
 </body>
 </html>

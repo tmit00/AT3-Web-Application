@@ -69,10 +69,10 @@
         .add-task-button:hover {
             background-color: #45a049;
         }
-        .update-task-button {
+        .mark-complete-button {
             background-color: #00796b; /* Dark teal background */
         }
-        .update-task-button:hover {
+        .mark-complete-button:hover {
             background-color: #004d40;
         }
         .delete-task-button {
@@ -94,8 +94,8 @@
         <h1>ToDo Tasks</h1>
         <div class="button-group">
             <a href="{{ url_for('todo_routes.create_task') }}" class="add-task-button">Add Task</a>
-            <a href="{{ url_for('todo_routes.update_task') }}" class="update-task-button">Update Task</a>
-            <a href="{{ url_for('todo_routes.delete_task') }}" class="delete-task-button">Delete Task</a>
+            <a href="{{ url_for('todo_routes.confirm_complete', task_id=task.id) }}" class="mark-complete-button">Mark Complete</a>
+            <a href="{{ url_for('todo_routes.confirm_delete', task_id=task.id) }}" class="delete-task-button">Delete Task</a>
             <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
         </div>
         <table>

@@ -16,10 +16,7 @@
     <div class="button-group">
         <!-- Link to the "Add Task" page -->
         <a href="{{ url_for('todo_routes.create_task') }}" class="add-task-button">Add Task</a>
-        <!-- Link to the "Update Task" page
-        <a href="{{ url_for('todo_routes.update_task') }}" class="update-task-button">Update Task</a> -->
-        <!-- Link to the "Delete Task" page -->
-        <!-- <a href="{{ url_for('todo_routes.delete_task') }}" class="delete-task-button">Delete Task</a> -->
+        
     </div>
 
     <!-- Table to display the list of tasks -->
@@ -32,7 +29,7 @@
                 <th>Description</th>
                 <th>Status</th>
                 <th>Priority</th>
-                <th>Update</th>
+                <th>Mark Complete</th>
                 <th>Delete</th>
             </tr>
         </thead>
@@ -52,9 +49,8 @@
                 </td>
                 <!-- Display task priority -->
                 <td>{{ task.priority }}</td>
-                <!-- Link to the "Update Task" page -->
-                <td><a href="{{ url_for('todo_routes.update_task') }}" class="update-task-button">Update Task</a></td>
-                <td><a href="{{ url_for('todo_routes.delete_task') }}" class="delete-task-button">Delete Task</a></td>
+                <td><a href="{{ url_for('todo_routes.confirm_complete', task_id=task.id) }}" class="mark-complete-button">Mark Complete</a></td>
+                <td><a href="{{ url_for('todo_routes.confirm_delete', task_id=task.id) }}" class="delete-task-button">Delete Task</a></td>
             </tr>
             {% endfor %}
         </tbody>
