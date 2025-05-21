@@ -93,9 +93,9 @@
     <div class="container">
         <h1>ToDo Tasks</h1>
         <div class="button-group">
-            <a href="{{ url_for('create_task') }}" class="add-task-button">Add Task</a>
-            <a href="{{ url_for('update_task') }}" class="update-task-button">Update Task</a>
-            <a href="{{ url_for('delete_task') }}" class="delete-task-button">Delete Task</a>
+            <a href="{{ url_for('todo_routes.create_task') }}" class="add-task-button">Add Task</a>
+            <a href="{{ url_for('todo_routes.update_task') }}" class="update-task-button">Update Task</a>
+            <a href="{{ url_for('todo_routes.delete_task') }}" class="delete-task-button">Delete Task</a>
             <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
         </div>
         <table>

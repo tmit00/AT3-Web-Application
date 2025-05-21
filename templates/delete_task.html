@@ -60,7 +60,7 @@
         {% if error %}
             <div class="error">{{ error }}</div>
         {% endif %}
-        <form action="{{ url_for('delete_task') }}" method="post">
+        <form action="{{ url_for('todo_routes.delete_task') }}" method="post">
             <label for="id">Task ID:</label>
             <input type="text" id="id" name="id" placeholder="Enter Task ID to delete" required>
             <button type="submit">Delete Task</button>

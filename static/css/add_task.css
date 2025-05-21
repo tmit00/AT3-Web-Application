@@ -29,6 +29,7 @@ input, textarea {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    resize: none;
 }
 .checkbox-group {
     display: flex;

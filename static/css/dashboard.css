@@ -109,22 +109,6 @@ h1 {
     border-radius: 5px;
 }
 
-.update-btn {
-    display: block;
-    width: 100%;
-    padding: 8px;
-    background-color: #ec971f;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-}
-
-.update-btn:hover {
-    background-color: #d8821f;
-}
-
 .container {
     max-width: 800px;
     margin: auto;
@@ -191,13 +175,13 @@ th {
     background-color: #45a049;
 }
 
-.update-task-button {
+/* .update-task-button {
     background-color: #00796b;
 }
 
 .update-task-button:hover {
     background-color: #004d40;
-}
+} */
 
 .delete-task-button {
     background-color: #d9534f;
