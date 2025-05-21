@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Calendar{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="../static/css/calendar.css">
+{% endblock %}
+
+{% block content %}
+<div class="card"> 
+    <div class="card-body">
+        <div class="card-header d-flex justify-content-between border-0">
+            <a href="{{ url_for('calendar_routes.calendar_server', year=prev_year, month=prev_month) }}" class="btn btn-tertiary text-center">&laquo;</a>
+            <div class="d-flex align-items-center ">{{month_name}} {{year}}</div>
+            <a href="{{ url_for('calendar_routes.calendar_server', year=next_year, month=next_month) }}" class="btn btn-tertiary text-center">&raquo;</a>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                        <th>{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in calendar %}
+                <tr>
+                    {% for day in week %}
+                    <td>{{ day if day != 0 else '' }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

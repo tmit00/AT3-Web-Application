@@ -1,0 +1,16 @@
+table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+th {
+    text-align: center;
+}
+
+td {
+    text-align: center;
+}
+
+td:hover {
+    background-color: #e9ecef;
+}
