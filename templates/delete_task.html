@@ -1,79 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirm Delete</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fff;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 10px;
-        }
-        input[type="text"] {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button, .button {
-            padding: 10px 15px;
-            background-color: #d9534f;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            text-decoration: none;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        .button.cancel {
-            background-color: #888;
-            margin-bottom: 10px;
-        }
-        button:hover {
-            background-color: #c9302c;
-        }
-        .button.cancel:hover {
-            background-color: #555;
-        }
-        .error {
-            color: red;
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Are you sure you want to delete "{{ task.title }}"?</h1>
-        {% if error %}
-            <div class="error">{{ error }}</div>
-        {% endif %}
-        <form action="{{ url_for('todo_routes.delete', task_id=task.id) }}" method="post">
-            <button type="submit">Yes, Delete</button>
-            <a href="{{ url_for('dashboard') }}" class="button cancel">Cancel</a>
-        </form>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Delete Task{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="../static/css/task.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Are you sure you want to delete "{{ task.title }}"?</h1>
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+    <form action="{{ url_for('todo_routes.delete', task_id=task.id) }}" method="post">
+        <button class="button delete" type="submit">Yes, Delete</button>
+        <a href="{{ url_for('dashboard') }}" class="button cancel delete">Cancel</a>
+    </form>
+</div>
+{% endblock %}

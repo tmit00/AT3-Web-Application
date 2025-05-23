@@ -3,76 +3,7 @@
 {% block title %}Mark Incomplete{% endblock %}
 
 {% block extra_head %}
-<style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fff;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-bottom: 10px;
-        }
-        input[type="text"] {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .checkbox-container label {
-            margin: 0;
-            margin-right: 10px;
-        }
-        button, .button {
-            padding: 10px 15px;
-            background-color: #008080; /* Teal color for the button */
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            text-decoration: none;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-        .button.cancel {
-            background-color: #888;
-            margin-bottom: 0px;
-            display: flex;
-            flex-direction: column;
-        }
-        button:hover {
-            background-color: #006666; /* Darker teal for hover state */
-        }
-        .button.cancel:hover {
-            background-color: #555;
-        }
-        .error {
-            color: red;
-            margin-bottom: 20px;
-        }
-    </style>
+<link rel="stylesheet" href="../static/css/task.css">
 {% endblock %}
 
 
@@ -80,8 +11,8 @@
 <div class="container">
         <h1>Mark Task "{{ task.title }}" as incomplete?</h1>
         <form action="{{ url_for('todo_routes.mark_incomplete', task_id=task.id) }}" method="post">
-            <button type="submit">Yes, Mark Incomplete</button>
-            <a href="{{ url_for('dashboard') }}" class="button cancel">Cancel</a>
+            <button class="button mark" type="submit">Yes, Mark Incomplete</button>
+            <a href="{{ url_for('dashboard') }}" class="button cancel mark">Cancel</a>
         </form>
     </div>
 {% endblock %}
