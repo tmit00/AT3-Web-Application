@@ -29,7 +29,7 @@
                 <th>Description</th>
                 <th>Status</th>
                 <th>Due Date</th>
-                <th>Completion Status</th>
+                <th>Update Status</th>
                 <th>Delete</th>
             </tr>
         </thead>
@@ -48,7 +48,8 @@
                     {{ 'Complete' if task.is_complete else 'Incomplete' }}
                 </td>
                 <!-- Display task date -->
-                <td>{{ task.date }}</td>
+                <td class="{% if task.is_overdue %}overdue{% else %}not-overdue{% endif %}">
+                    {{ task.date }}</td>
                 <td>
                     {% if not task.is_complete %}
                         <a href="{{ url_for('todo_routes.confirm_complete', task_id=task.id) }}" class="mark-complete-button">Mark Complete</a>

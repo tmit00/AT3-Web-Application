@@ -144,6 +144,14 @@ th {
     color: red;
 }
 
+.overdue {
+    color: red;
+}
+
+.not-overdue {
+    color: green;
+}
+
 .button-group {
     display: flex;
     justify-content: flex-end;
