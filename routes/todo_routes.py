@@ -9,9 +9,9 @@ def create_task():
     if request.method == 'POST': 
         title = request.form.get('title')
         description = request.form.get('description')
-        priority = request.form.get('priority')
+        date = request.form.get('date')
 
-        user_create_task(title, description, priority)
+        user_create_task(title, description, date)
 
         return redirect(url_for('dashboard'))
     else: 
@@ -32,6 +32,29 @@ def confirm_complete(task_id):
 @todo_routes.route('/mark_complete/<int:task_id>', methods=['POST'])
 def mark_complete(task_id):
     user_mark_complete(task_id)  # Set task.is_complete = True in this function
+    return redirect(url_for('dashboard'))
+
+@todo_routes.route('/confirm_mark_incomplete/<int:task_id>')
+def confirm_mark_incomplete(task_id):
+    task = Task.query.get(task_id)
+    if not task:
+        return redirect(url_for('dashboard'))
+
+    error = None
+    if not task.is_complete:
+        error = "This task is not marked as complete."
+
+    return render_template('mark_incomplete.html', task=task, error=error)
+
+
+
+# Mark incomplete
+@todo_routes.route('/mark_incomplete/<int:task_id>', methods=['POST'])
+def mark_incomplete(task_id):
+    task = Task.query.get(task_id)
+    if task and task.is_complete:
+        task.is_complete = False
+        db.session.commit()
     return redirect(url_for('dashboard'))
 
 # Confirm delete

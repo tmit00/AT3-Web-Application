@@ -146,7 +146,7 @@ th {
 
 .button-group {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-bottom: 20px;
 }
 
@@ -157,7 +157,6 @@ th {
     text-decoration: none;
     border-radius: 8px;
     font-size: 16px;
-    flex: 1;
     margin-right: 10px;
 }
 
@@ -197,7 +196,7 @@ th {
     background-color: #ec971f;
 }
 
-.mark-complete-button {
+.mark-complete-button, .mark-incomplete-button {
     display: block;
     cursor: pointer;
     padding: 8px;
@@ -215,4 +214,12 @@ th {
     text-decoration: none;
     color: white;
     border-radius: 5px;
+}
+
+.mark-incomplete-button {
+    background-color: #888;
+}
+
+.mark-incomplete-button:hover {
+    background-color: #555;
 }

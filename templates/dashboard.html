@@ -22,14 +22,14 @@
     <!-- Table to display the list of tasks -->
     <table>
         <thead>
-            <!-- Table header row defining the columns: ID, Title, Description, Status, Priority -->
+            <!-- Table header row defining the columns: ID, Title, Description, Status, Due Date -->
             <tr>
                 <th>ID</th>
                 <th>Title</th>
                 <th>Description</th>
                 <th>Status</th>
-                <th>Priority</th>
-                <th>Mark Complete</th>
+                <th>Due Date</th>
+                <th>Completion Status</th>
                 <th>Delete</th>
             </tr>
         </thead>
@@ -47,9 +47,16 @@
                 <td class="{{ 'complete' if task.is_complete else 'incomplete' }}">
                     {{ 'Complete' if task.is_complete else 'Incomplete' }}
                 </td>
-                <!-- Display task priority -->
-                <td>{{ task.priority }}</td>
-                <td><a href="{{ url_for('todo_routes.confirm_complete', task_id=task.id) }}" class="mark-complete-button">Mark Complete</a></td>
+                <!-- Display task date -->
+                <td>{{ task.date }}</td>
+                <td>
+                    {% if not task.is_complete %}
+                        <a href="{{ url_for('todo_routes.confirm_complete', task_id=task.id) }}" class="mark-complete-button">Mark Complete</a>
+                    {% else %}
+                        <a href="{{ url_for('todo_routes.confirm_mark_incomplete', task_id=task.id) }}" class="mark-incomplete-button">Mark Incomplete</a>
+                    {% endif %}
+                </td>
+
                 <td><a href="{{ url_for('todo_routes.confirm_delete', task_id=task.id) }}" class="delete-task-button">Delete Task</a></td>
             </tr>
             {% endfor %}

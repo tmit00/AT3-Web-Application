@@ -6,11 +6,11 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200), nullable=True)
-    priority = db.Column(db.Integer, default=0)
+    date = db.Column(db.String(10), nullable=True)
     is_complete = db.Column(db.Boolean, default=False)
 
-    def __init__(self, title, description=None, priority=0):
+    def __init__(self, title, description=None, date=None):
         self.title = title
         self.description = description
-        self.priority = priority
+        self.date = date
         self.is_complete = False

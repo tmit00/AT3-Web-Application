@@ -1,7 +1,7 @@
 from data import db, Task
 
-def user_create_task(title, description, priority):
-    new_task = Task(title=title, description=description, priority=priority)
+def user_create_task(title, description, date):
+    new_task = Task(title=title, description=description, date=date)
     db.session.add(new_task)
     db.session.commit()
     return new_task
