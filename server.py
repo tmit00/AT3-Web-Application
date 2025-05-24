@@ -12,7 +12,7 @@ register_blueprints(app)
 
 @app.route('/', methods=['GET'])
 def dashboard():
-    all_tasks = Task.query.all()
+    all_tasks = Task.query.order_by(Task.is_complete.asc(), Task.date.asc()).all()
     today = datetime.today().date()
 
     for task in all_tasks:

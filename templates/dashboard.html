@@ -22,9 +22,8 @@
     <!-- Table to display the list of tasks -->
     <table>
         <thead>
-            <!-- Table header row defining the columns: ID, Title, Description, Status, Due Date -->
+            <!-- Table header row defining the columns: Title, Description, Status, Due Date -->
             <tr>
-                <th>ID</th>
                 <th>Title</th>
                 <th>Description</th>
                 <th>Status</th>
@@ -37,8 +36,6 @@
             <!-- Loop through the tasks list passed from the backend and generate a row for each task -->
             {% for task in tasks %}
             <tr>
-                <!-- Display task ID -->
-                <td>{{ task.id }}</td>
                 <!-- Display task title -->
                 <td>{{ task.title }}</td>
                 <!-- Display task description -->
