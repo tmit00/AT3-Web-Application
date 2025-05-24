@@ -1,6 +1,9 @@
 from flask import Blueprint, request, render_template
-from datetime import datetime
+from datetime import datetime, date
 import calendar
+from data import Task
+from collections import defaultdict
+
 calendar_routes = Blueprint('calendar_routes', __name__)
 
 @calendar_routes.route('/calendar_server')
@@ -15,6 +18,26 @@ def calendar_server():
     month_name = calendar.month_name[month]
 
     cal = calendar.Calendar().monthdayscalendar(year, month)
+
+
+    #Get all tasks for the month
+    tasks = Task.query.all()
+    tasks_by_day = defaultdict(int)
+    overdue_tasks_by_day = defaultdict(int)
+
+    today = date.today()
+
+    for task in tasks:
+        if not task.date or task.is_complete:
+            continue
+
+        task_date = task.date
+        
+        if task_date.year == year and task_date.month == month:
+            if task_date < today:
+                overdue_tasks_by_day[task_date.day] += 1
+            else:
+                tasks_by_day[task_date.day] += 1
 
     # Calculate previous and next month
     if month > 1:
@@ -35,5 +58,13 @@ def calendar_server():
         "calendar.html", year=year, month=month, calendar=cal,
         prev_year=prev_year, prev_month=prev_month,
         next_year=next_year, next_month=next_month,
-        month_name=month_name
+        month_name=month_name, tasks_by_day=tasks_by_day,
+        overdue_tasks_by_day=overdue_tasks_by_day
     )
+
+@calendar_routes.route('/day/<int:year>/<int:month>/<int:day>')
+def view_day(year, month, day):
+    date_obj = datetime(year, month, day).date()
+    tasks = Task.query.filter_by(date=date_obj).all()
+
+    return render_template("day_view.html", year=year, month=month, day=day, tasks=tasks)

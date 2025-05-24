@@ -26,7 +26,18 @@
                 {% for week in calendar %}
                 <tr>
                     {% for day in week %}
-                    <td>{{ day if day != 0 else '' }}</td>
+                    <td>
+                        {% if day != 0 %}
+                            <a href="{{ url_for('calendar_routes.view_day', year=year, month=month, day=day) }}" class="day-link">
+                                <div>{{ day }}</div>
+                                {% if overdue_tasks_by_day[day] %}
+                                    <div class="task-count text-danger">{{ overdue_tasks_by_day[day] }} Task{{ 's' if overdue_tasks_by_day[day] > 1 else '' }} Overdue</div>
+                                {% elif tasks_by_day[day] %}
+                                    <div class="task-count">{{ tasks_by_day[day] }} Task{{ 's' if tasks_by_day[day] > 1 else '' }} Due</div>
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    </td>
                     {% endfor %}
                 </tr>
                 {% endfor %}

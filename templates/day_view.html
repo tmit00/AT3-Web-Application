@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks for {{ day }}/{{ month }}/{{ year }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Tasks for {{ day }}/{{ month }}/{{ year }}
+    </div>
+    <div class="card-body">
+        {% if tasks %}
+            <ul>
+                {% for task in tasks %}
+                    <li>{{ task.title }}{% if task.is_complete %} (Complete){% endif %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No tasks for this day.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

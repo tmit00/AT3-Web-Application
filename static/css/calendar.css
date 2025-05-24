@@ -11,6 +11,25 @@ td {
     text-align: center;
 }
 
-td:hover {
+.task-count {
+    font-size: 0.75em;
+    color: #007bff;
+    margin-top: 4px;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+.day-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.day-link:hover {
     background-color: #e9ecef;
 }

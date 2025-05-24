@@ -1,6 +1,7 @@
 from flask import Flask, render_template, url_for, redirect, request, Blueprint
 from data import db, Task
 from task import user_create_task, user_mark_complete, user_delete_task
+from datetime import datetime
 
 todo_routes = Blueprint('todo_routes', __name__)
 
@@ -9,9 +10,10 @@ def create_task():
     if request.method == 'POST': 
         title = request.form.get('title')
         description = request.form.get('description')
-        date = request.form.get('date')
+        date_str = request.form.get('date')  # e.g. "2025-05-23"
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else None
 
-        user_create_task(title, description, date)
+        user_create_task(title, description, date_obj)
 
         return redirect(url_for('dashboard'))
     else: 

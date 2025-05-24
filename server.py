@@ -18,7 +18,7 @@ def dashboard():
     for task in all_tasks:
         task.is_overdue = False
         if task.date: # Make sure task.date isn't None
-            task_date = task.date if isinstance(task.date, datetime) else datetime.strptime(task.date, "%Y-%m-%d").date()
+            task_date = task.date 
             task.is_overdue = task_date < today and not task.is_complete
     return render_template('dashboard.html', tasks=all_tasks)
 
