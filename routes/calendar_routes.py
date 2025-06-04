@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, session, redirect, url_for
 from datetime import datetime, date
 import calendar
 from data import Task
@@ -8,6 +8,9 @@ calendar_routes = Blueprint('calendar_routes', __name__)
 
 @calendar_routes.route('/calendar_server')
 def calendar_server():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+        
     try:
         # Make sure it's an int to make sure the server is safe
         year = int(request.args.get("year", datetime.now().year))
@@ -19,9 +22,9 @@ def calendar_server():
 
     cal = calendar.Calendar().monthdayscalendar(year, month)
 
-
-    #Get all tasks for the month
-    tasks = Task.query.all()
+    #Get all tasks for the month for current user
+    user_email = session['user']['email']
+    tasks = Task.query.filter_by(user_email=user_email).all()
     tasks_by_day = defaultdict(int)
     overdue_tasks_by_day = defaultdict(int)
 
@@ -64,7 +67,11 @@ def calendar_server():
 
 @calendar_routes.route('/day/<int:year>/<int:month>/<int:day>')
 def view_day(year, month, day):
+    if 'user' not in session:
+        return redirect(url_for('index'))
+        
     date_obj = datetime(year, month, day).date()
-    tasks = Task.query.filter_by(date=date_obj).all()
+    user_email = session['user']['email']
+    tasks = Task.query.filter_by(date=date_obj, user_email=user_email).all()
 
     return render_template("day_view.html", year=year, month=month, day=day, tasks=tasks)

@@ -1,7 +1,9 @@
 from data import db, Task
+from flask import session
 
 def user_create_task(title, description, date):
-    new_task = Task(title=title, description=description, date=date)
+    user_email = session.get('user', {}).get('email', 'anonymous@example.com')
+    new_task = Task(title=title, description=description, date=date, user_email=user_email)
     db.session.add(new_task)
     db.session.commit()
     return new_task

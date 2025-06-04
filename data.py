@@ -9,9 +9,11 @@ class Task(db.Model):
     description = db.Column(db.String(200), nullable=True)
     date = db.Column(db.Date, nullable=True)
     is_complete = db.Column(db.Boolean, default=False)
+    user_email = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, title, description=None, date=None):
+    def __init__(self, title, description=None, date=None, user_email=None):
         self.title = title
         self.description = description
         self.date = date
         self.is_complete = False
+        self.user_email = user_email

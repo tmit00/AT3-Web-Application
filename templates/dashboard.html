@@ -9,6 +9,12 @@
 {% block content %} 
 
 <div class="container">
+    <!-- User info and logout section -->
+    <div style="text-align: right; margin-bottom: 20px;">
+        <span>Welcome, {{ user.name }}!</span>
+        <a href="{{ url_for('logout') }}" class="logout-button" style="margin-left: 10px; padding: 5px 10px; background-color: #f0ad4e; color: white; text-decoration: none; border-radius: 4px;">Logout</a>
+    </div>
+    
     <!-- Main heading for the ToDo Tasks page -->
     <h1>ToDo Tasks</h1>
 
