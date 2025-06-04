@@ -14,9 +14,8 @@ def create_task():
         description = request.form.get('description')
         date_str = request.form.get('date')  # e.g. "2025-05-23"
         date_obj = datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else None
-        user_email = session['user']['email']
 
-        user_create_task(title, description, date_obj, user_email)
+        user_create_task(title, description, date_obj)
 
         return redirect(url_for('dashboard'))
     else: 
@@ -40,7 +39,7 @@ def confirm_complete(task_id):
 def mark_complete(task_id):
     if 'user' not in session:
         return redirect(url_for('login'))
-    user_mark_complete(task_id, True, session['user']['email'])
+    user_mark_complete(task_id, True)
     return redirect(url_for('dashboard'))
 
 @todo_routes.route('/confirm_mark_incomplete/<int:task_id>')
@@ -85,7 +84,7 @@ def confirm_delete(task_id):
 def delete(task_id):
     if 'user' not in session:
         return redirect(url_for('login'))
-    user_delete_task(task_id, session['user']['email'])
+    user_delete_task(task_id)
     return redirect(url_for('dashboard'))
 
 @todo_routes.route('/pomodoro')
