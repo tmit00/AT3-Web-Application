@@ -1,60 +1,21 @@
-{% extends 'base.html' %}
-
-{% block title %}Welcome - ToDo Task List{% endblock %}
-
-{% block content %}
-<style>
-    .welcome-container {
-        max-width: 600px;
-        margin: 100px auto;
-        text-align: center;
-        background-color: #fff;
-        padding: 40px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .welcome-container h1 {
-        color: #333;
-        margin-bottom: 20px;
-    }
-    .welcome-container p {
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 18px;
-    }
-    .login-button {
-        display: inline-block;
-        background-color: #4285f4;
-        color: white;
-        padding: 12px 24px;
-        text-decoration: none;
-        border-radius: 4px;
-        font-size: 18px;
-        font-weight: 500;
-        transition: background-color 0.3s;
-    }
-    .login-button:hover {
-        background-color: #357ae8;
-    }
-    .google-icon {
-        width: 20px;
-        height: 20px;
-        margin-right: 10px;
-        vertical-align: middle;
-    }
-</style>
-
-<div class="welcome-container">
-    <h1>Welcome to ToDo Task List</h1>
-    <p>Organize your tasks and boost your productivity!</p>
-    <a href="{{ url_for('login') }}" class="login-button">
-        <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path fill="#ffffff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#ffffff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#ffffff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="#ffffff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Sign in with Google
-    </a>
-</div>
-{% endblock %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Welcome - FocusFlow</title>
+  <link rel="stylesheet" href="../static/css/home.css">
+</head>
+<body>
+  <div class="home-premium-container">
+    <div class="home-premium-card">
+      <h1>Welcome to <span class="brand-gradient">FocusFlow</span></h1>
+      <p class="subtitle">Organize your tasks and boost your productivity with a premium experience.</p>
+      <div class="button-row">
+        <a href="{{ url_for('manual_login') }}" class="premium-btn login-btn">Login</a>
+        <a href="{{ url_for('register') }}" class="premium-btn register-btn">Register</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

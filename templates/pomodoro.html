@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Pomodoro Timer{% endblock %}
+
+{% block content %}
+<div class="pomodoro-container">
+    <h1>Pomodoro Timer</h1>
+    <div class="pomodoro-center-column">
+        <div class="pomodoro-timer-ring-container">
+            <svg id="progress-ring" width="170" height="170">
+                <circle
+                    id="progress-ring-bg"
+                    cx="85" cy="85" r="75"
+                    stroke="#f0f0f0"
+                    stroke-width="12"
+                    fill="none"
+                />
+                <circle
+                    id="progress-ring-bar"
+                    cx="85" cy="85" r="75"
+                    stroke="#43e97b"
+                    stroke-width="12"
+                    fill="none"
+                    stroke-linecap="round"
+                    style="transition: stroke-dashoffset 0.5s;"
+                />
+            </svg>
+            <div id="timer" class="pomodoro-timer-display"></div>
+        </div>
+    </div>
+    <div id="session-label" class="pomodoro-session-label">Work</div>
+    <div class="pomodoro-btn-row">
+        <button class="pomodoro-btn" onclick="startTimer()">Start</button>
+        <button class="pomodoro-btn reset" onclick="resetTimer()">Reset</button>
+        <button id="settings-btn" class="pomodoro-btn">&#9881;</button>
+    </div>
+    <div class="pomodoro-cycle-info">
+        <span id="cycle-info">Pomodoro 1 of 4</span>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="pomodoro-settings-modal" class="pomodoro-modal">
+    <div class="pomodoro-modal-content">
+        <span class="pomodoro-close" id="close-settings">&times;</span>
+        <h2>Pomodoro Settings</h2>
+        <form id="pomodoro-settings-form">
+            <label>Work Duration (minutes): <input type="number" min="1" max="90" id="work-duration" required></label><br>
+            <label>Short Break (minutes): <input type="number" min="1" max="30" id="short-break-duration" required></label><br>
+            <label>Long Break (minutes): <input type="number" min="1" max="60" id="long-break-duration" required></label><br>
+            <label>Pomodoros before Long Break: <input type="number" min="1" max="10" id="cycles-before-long" required></label><br>
+            <label>Sound:
+                <select id="sound-select">
+                    <option value="bell">Bell</option>
+                    <option value="chime">Chime</option>
+                    <option value="beep">Beep</option>
+                    <option value="none">None</option>
+                </select>
+            </label>
+            <br>
+            <button type="submit" class="pomodoro-btn" style="margin-top:10px;">Save</button>
+        </form>
+    </div>
+</div>
+
+<!-- Audio elements for sounds -->
+<audio id="sound-bell" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae3c7.mp3"></audio>
+<audio id="sound-chime" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b1bfa.mp3"></audio>
+<audio id="sound-beep" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b1bfa.mp3"></audio>
+
+<script src="{{ url_for('static', filename='javascript/pomodoro.js') }}"></script>
+{% endblock %}

@@ -9,7 +9,7 @@ class Task(db.Model):
     description = db.Column(db.String(200), nullable=True)
     date = db.Column(db.Date, nullable=True)
     is_complete = db.Column(db.Boolean, default=False)
-    user_email = db.Column(db.String(100), nullable=False)
+    user_email = db.Column(db.String(100), db.ForeignKey('user.email'), nullable=False)  # Link to User
 
     def __init__(self, title, description=None, date=None, user_email=None):
         self.title = title
@@ -17,3 +17,12 @@ class Task(db.Model):
         self.date = date
         self.is_complete = False
         self.user_email = user_email
+
+class User(db.Model):
+    email = db.Column(db.String(100), primary_key=True)
+    password = db.Column(db.String(100), nullable=True)  # Allow nullable for OAuth users
+    tasks = db.relationship('Task', backref='user', lazy=True)  # Optional: for easy access
+
+    def __init__(self, email, password=None):
+        self.email = email
+        self.password = password

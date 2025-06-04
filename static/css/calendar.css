@@ -1,35 +1,61 @@
 table {
     width: 100%;
     table-layout: fixed;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(44,62,80,0.04);
+    overflow: hidden;
 }
 
 th {
     text-align: center;
+    background: #f7f7fa;
+    font-weight: 600;
+    color: #232526;
+    padding: 14px 0;
+    border-bottom: 2px solid #e0e0e0;
 }
 
 td {
     text-align: center;
+    padding: 18px 0 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+    vertical-align: top;
+    background: #fff;
+    min-height: 60px;
+}
+
+td:last-child {
+    border-right: none;
+}
+
+tr:last-child td {
+    border-bottom: none;
 }
 
 .task-count {
-    font-size: 0.75em;
-    color: #007bff;
-    margin-top: 4px;
+    font-size: 0.85em;
+    color: #4f8cff;
+    margin-top: 6px;
+    font-weight: 600;
 }
 
 .text-danger {
-    color: #dc3545;
+    color: #e74c3c;
 }
 
 .day-link {
     display: block;
     text-decoration: none;
     color: inherit;
-    padding: 4px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
+    padding: 8px 0 4px 0;
+    border-radius: 8px;
+    transition: background 0.18s;
+    min-height: 48px;
 }
 
 .day-link:hover {
-    background-color: #e9ecef;
+    background: #f7f7fa;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.06);
 }

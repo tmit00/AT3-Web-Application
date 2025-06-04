@@ -15,9 +15,14 @@
     <div class="sidebar">
         <h2>Menu</h2>
         <ul>
-            <li><a href="/" onclick="toggleTaskList()">Dashboard</a></li>
-            <li><a href="calendar_server" onclick="toggleTaskList()">Calendar</a></li>
+            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('calendar_routes.calendar_server') }}">Calendar</a></li>
+            <li><a href="{{ url_for('todo_routes.pomodoro') }}">Pomodoro Timer</a></li>
         </ul>
+        <!-- Logout button at the bottom -->
+        <div class="logout-container">
+            <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+        </div>
     </div>
     <div class="main-content">
         {% block content %}{% endblock %}

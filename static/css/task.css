@@ -1,90 +1,138 @@
 @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&display=swap');
 
+body {
+    font-family: 'Public Sans', Arial, sans-serif;
+    background: linear-gradient(135deg, #f4f4f4 0%, #e9e9f7 100%);
+}
+
 .container {
-    max-width: 600px;
-    margin: auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 480px;
+    margin: 48px auto;
+    background: #fff;
+    padding: 32px 28px;
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(44,62,80,0.10);
 }
+
 h1 {
-    margin-bottom: 20px;
+    margin-bottom: 28px;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #232526;
+    text-align: center;
 }
+
 form {
     display: flex;
     flex-direction: column;
 }
+
 label {
-    margin-bottom: 5px;
+    margin-bottom: 7px;
+    font-weight: 600;
+    color: #444;
+    letter-spacing: 0.2px;
 }
+
 input, textarea {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    resize: none;
+    margin-bottom: 18px;
+    padding: 12px 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: #f7f7fa;
+    transition: border 0.2s;
 }
+
+input:focus, textarea:focus {
+    border: 1.5px solid #4f8cff;
+    outline: none;
+    background: #fff;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+    max-height: 200px;
+}
+
 .checkbox-group {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
+
 .checkbox-group input {
     margin-right: 10px;
-    margin-top: 9px; /* Nudge checkbox down */
+    margin-top: 0;
 }
+
 .button {
-    padding: 10px 15px;
-    color: white;
+    padding: 12px 0;
+    color: #fff;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1.08rem;
+    font-weight: 600;
     text-decoration: none;
     text-align: center;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    display: block;
 }
+
 .button.create {
-    background-color: #4CAF50;
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
-.button.mark {
-    background-color: #008080;
-}
-.button.delete {
-    background-color: #d9534f;
-}
-.button.cancel {
-    background-color: #888;
-    margin-bottom: 10px;
-}
-/* .button.cancel.mark {
-    background-color: #888;
-    margin-bottom: 0px;
-    display: flex;
-    flex-direction: column;
-} */
+
 .button.create:hover {
-    background-color: #45a049;
+    background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);
+    box-shadow: 0 4px 16px rgba(67,233,123,0.12);
 }
+
+.button.mark {
+    background: linear-gradient(135deg, #4f8cff 0%, #3358e6 100%);
+}
+
 .button.mark:hover {
-    background-color: #006666;
+    background: linear-gradient(135deg, #3358e6 0%, #4f8cff 100%);
+    box-shadow: 0 4px 16px rgba(79,140,255,0.12);
 }
+
+.button.delete {
+    background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
+}
+
 .button.delete:hover {
-    background-color: #c9302c;
+    background: linear-gradient(135deg, #f09819 0%, #ff5858 100%);
+    box-shadow: 0 4px 16px rgba(255,88,88,0.12);
 }
+
+.button.cancel {
+    background: linear-gradient(135deg, #bdbdbd 0%, #757575 100%);
+    color: #fff;
+}
+
 .button.cancel:hover {
-    background-color: #555;
+    background: linear-gradient(135deg, #757575 0%, #bdbdbd 100%);
+    box-shadow: 0 4px 16px rgba(189,189,189,0.12);
 }
+
 .error-box {
-    background-color: #f8d7da;
-    color: darkred;
+    background: #ffeaea;
+    color: #e74c3c;
     border: 1px solid #f5c6cb;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-weight: 500;
+    font-size: 1rem;
 }
+
 .error {
-    color: red;
+    color: #e74c3c;
     margin-bottom: 20px;
+    font-weight: 500;
 }

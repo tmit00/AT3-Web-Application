@@ -1,52 +1,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&display=swap');
 
 body {
-    font-family: 'Public Sans', sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Public Sans', Arial, sans-serif;
+    background: linear-gradient(135deg, #f4f4f4 0%, #e9e9f7 100%);
     margin: 0;
     padding: 0;
     display: flex;
+    min-height: 100vh;
 }
 
 .sidebar {
     width: 250px;
-    background-color: #333;
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
     color: #fff;
     height: 100vh;
-    padding: 10px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 24px 16px 0 16px;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.08);
+    position: relative;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .sidebar h2 {
     text-align: center;
-    margin-bottom: 20px;
-    font-weight: 600;
+    margin-bottom: 32px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 1.6rem;
 }
 
 .sidebar ul {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .sidebar ul li {
-    padding: 10px;
-    border-bottom: 1px solid #444;
+    margin-bottom: 12px;
 }
 
 .sidebar ul li a {
     color: #fff;
     text-decoration: none;
     display: block;
+    padding: 12px 18px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 .sidebar ul li a:hover {
-    background-color: #575757;
+    background: rgba(255,255,255,0.08);
 }
 
 .main-content {
     flex: 1;
-    padding: 20px;
+    padding: 40px 32px;
     position: relative;
+    min-height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    color: #232526;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+    letter-spacing: 1px;
 }
 
 .profile-btn {
@@ -85,11 +106,6 @@ body {
     right: 20px;
 }
 
-h1 {
-    text-align: center;
-    color: #333;
-}
-
 .profile-info {
     margin-bottom: 15px;
 }
@@ -109,63 +125,82 @@ h1 {
 }
 
 .container {
-    max-width: 800px;
-    margin: auto;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 32px 36px;
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(44,62,80,0.08);
 }
 
 table {
     width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-table, th, td {
-    border: 1px solid #ddd;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 24px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(44,62,80,0.04);
 }
 
 th, td {
-    padding: 12px;
+    padding: 16px 14px;
     text-align: left;
 }
 
 th {
-    background-color: #f2f2f2;
+    background: #f7f7fa;
+    font-weight: 600;
+    color: #232526;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+td {
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 1rem;
 }
 
 .complete {
-    color: green;
+    color: #27ae60;
+    font-weight: 600;
 }
 
 .incomplete {
-    color: red;
+    color: #e67e22;
+    font-weight: 600;
 }
 
 .overdue {
-    color: red;
+    color: #e74c3c;
+    font-weight: 600;
 }
 
 .not-overdue {
-    color: green;
+    color: #27ae60;
+    font-weight: 600;
 }
 
 .button-group {
     display: flex;
+    gap: 16px;
+    margin-bottom: 28px;
     justify-content: flex-end;
-    margin-bottom: 20px;
 }
 
 .button-group a {
-    padding: 10px 15px;
-    color: white;
+    padding: 12px 24px;
+    color: #fff;
     text-align: center;
     text-decoration: none;
     border-radius: 8px;
-    font-size: 16px;
-    margin-right: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    border: none;
+    outline: none;
+    cursor: pointer;
 }
 
 .button-group a:last-child {
@@ -173,61 +208,425 @@ th {
 }
 
 .add-task-button {
-    background-color: #4CAF50;
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
 .add-task-button:hover {
-    background-color: #45a049;
+    background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);
+    box-shadow: 0 4px 16px rgba(67,233,123,0.12);
+}
+
+.mark-complete-button,
+.mark-incomplete-button,
+.delete-task-button {
+    padding: 12px 24px;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: inline-block;
 }
 
 .mark-complete-button {
-    background-color: #00796b;
+    background: linear-gradient(135deg, #4f8cff 0%, #3358e6 100%);
 }
 
 .mark-complete-button:hover {
-    background-color: #004d40;
-}
-
-.delete-task-button {
-    background-color: #d9534f;
-}
-
-.delete-task-button:hover {
-    background-color: #c9302c;
-}
-
-.logout-button {
-    background-color: #f0ad4e;
-}
-
-.logout-button:hover {
-    background-color: #ec971f;
-}
-
-.mark-complete-button, .mark-incomplete-button {
-    display: block;
-    cursor: pointer;
-    padding: 8px;
-    text-align: center;
-    text-decoration: none;
-    color: white;
-    border-radius: 5px;
-}
-
-.delete-task-button {
-    display: block;
-    cursor: pointer;
-    padding: 8px;
-    text-align: center;
-    text-decoration: none;
-    color: white;
-    border-radius: 5px;
+    background: linear-gradient(135deg, #3358e6 0%, #4f8cff 100%);
+    box-shadow: 0 4px 16px rgba(79,140,255,0.12);
 }
 
 .mark-incomplete-button {
-    background-color: #888;
+    background: linear-gradient(135deg, #bdbdbd 0%, #757575 100%);
 }
 
 .mark-incomplete-button:hover {
-    background-color: #555;
+    background: linear-gradient(135deg, #757575 0%, #bdbdbd 100%);
+    box-shadow: 0 4px 16px rgba(189,189,189,0.12);
 }
+
+.delete-task-button {
+    background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
+}
+
+.delete-task-button:hover {
+    background: linear-gradient(135deg, #f09819 0%, #ff5858 100%);
+    box-shadow: 0 4px 16px rgba(255,88,88,0.12);
+}
+
+.logout-button {
+    background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+    color: #232526;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    border-radius: 8px;
+    padding: 12px 0;
+    margin-top: 24px;
+    margin-left: 0;
+    margin-right: 0;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: background 0.2s, color 0.2s;
+    box-shadow: 0 2px 8px rgba(247,151,30,0.08);
+}
+
+.logout-button:hover {
+    background: linear-gradient(135deg, #ffd200 0%, #f7971e 100%);
+    color: #fff;
+}
+
+.sidebar .logout-container {
+    position: absolute;
+    bottom: 32px;
+    left: 16px;
+    width: calc(100% - 32px);
+}
+
+
+
+::-webkit-scrollbar {
+    width: 8px;
+    background: #f7f7fa;
+}
+::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+    border-radius: 8px;
+}
+
+/* --- Day View Premium Styles --- */
+.day-view-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 60vh;
+}
+
+.day-view-card {
+    background: linear-gradient(135deg, #fff 60%, #f7f7fa 100%);
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(44,62,80,0.10), 0 1.5px 6px rgba(44,62,80,0.04);
+    padding: 38px 40px 32px 40px;
+    max-width: 480px;
+    width: 100%;
+    margin-top: 32px;
+    margin-bottom: 32px;
+    transition: box-shadow 0.2s;
+}
+
+.day-view-card:hover {
+    box-shadow: 0 12px 48px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+}
+
+.day-view-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.day-view-date {
+    font-size: 1.1rem;
+    color: #7b1fa2;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.day-view-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #232526;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.day-view-body {
+    min-height: 80px;
+}
+
+.day-view-task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.day-view-task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f7f7fa;
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+    transition: background 0.18s;
+}
+
+.day-view-task-item:last-child {
+    margin-bottom: 0;
+}
+
+.day-view-task-title {
+    font-size: 1.08rem;
+    color: #232526;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+.day-view-status {
+    font-size: 0.98rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 16px;
+    letter-spacing: 0.3px;
+    margin-left: 12px;
+    display: inline-block;
+}
+
+.complete-badge {
+    background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(67,233,123,0.10);
+}
+
+.incomplete-badge {
+    background: linear-gradient(90deg, #bdbdbd 0%, #757575 100%);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(189,189,189,0.10);
+}
+
+.day-view-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #bdbdbd;
+    font-size: 1.1rem;
+    padding: 32px 0 18px 0;
+    opacity: 0.95;
+}
+
+.day-view-empty i {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    color: #43e97b;
+    opacity: 0.7;
+}
+
+/* --- Pomodoro Timer Premium Styles --- */
+.pomodoro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fff 60%, #f7f7fa 100%);
+    border-radius: 18px;
+    box-shadow: 0 6px 32px rgba(44,62,80,0.10), 0 1.5px 6px rgba(44,62,80,0.04);
+    padding: 48px 40px 40px 40px;
+    max-width: 420px;
+    width: 100%;
+    margin: 40px auto 0 auto;
+    transition: box-shadow 0.2s;
+}
+
+.pomodoro-container:hover {
+    box-shadow: 0 12px 48px rgba(44,62,80,0.13), 0 2px 8px rgba(44,62,80,0.06);
+}
+
+#timer {
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #7b1fa2;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+    background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pomodoro-btn {
+    padding: 14px 38px;
+    margin: 0 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(135deg, #4f8cff 0%, #3358e6 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    outline: none;
+}
+
+.pomodoro-btn:hover {
+    background: linear-gradient(135deg, #3358e6 0%, #4f8cff 100%);
+    box-shadow: 0 4px 16px rgba(79,140,255,0.12);
+    transform: translateY(-2px) scale(1.03);
+}
+
+.pomodoro-btn:active {
+    transform: scale(0.98);
+}
+
+.pomodoro-btn.reset {
+    background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
+}
+
+.pomodoro-btn.reset:hover {
+    background: linear-gradient(135deg, #f09819 0%, #ff5858 100%);
+    box-shadow: 0 4px 16px rgba(255,88,88,0.12);
+}
+
+/* --- Pomodoro Modal Styles --- */
+.pomodoro-modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0; top: 0; width: 100vw; height: 100vh;
+    background: rgba(44,62,80,0.18);
+    justify-content: center;
+    align-items: center;
+}
+.pomodoro-modal-content {
+    background: #fff;
+    border-radius: 14px;
+    padding: 32px 28px 22px 28px;
+    box-shadow: 0 4px 32px rgba(44,62,80,0.13);
+    min-width: 320px;
+    max-width: 95vw;
+    position: relative;
+}
+.pomodoro-close {
+    position: absolute;
+    top: 12px; right: 18px;
+    font-size: 1.7rem;
+    color: #757575;
+    cursor: pointer;
+    font-weight: 700;
+}
+.pomodoro-modal label {
+    display: block;
+    margin: 12px 0 6px 0;
+    color: #232526;
+    font-weight: 500;
+}
+.pomodoro-modal input, .pomodoro-modal select {
+    width: 100%;
+    padding: 7px 8px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 4px;
+    font-size: 1rem;
+}
+.pomodoro-modal h2 {
+    text-align: center;
+    margin-bottom: 18px;
+    color: #7b1fa2;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* --- Pomodoro Progress Ring --- */
+#progress-ring {
+    display: block;
+    margin: 0 auto 0 auto;
+}
+
+#progress-ring-bar {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.5s;
+}
+
+.pomodoro-center-column {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.pomodoro-timer-ring-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.pomodoro-timer-display {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem; /* Reduced from 2.5rem */
+    width: 170px;
+    height: 170px;
+}
+.pomodoro-session-label {
+    margin: 18px 0 8px 0;
+    font-weight: 600;
+    color: #7b1fa2;
+}
+.pomodoro-btn-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+}
+.pomodoro-cycle-info {
+    margin-top: 18px;
+    color: #757575;
+    font-size: 1rem;
+}
+
+.welcome-container {
+        max-width: 600px;
+        margin: 100px auto;
+        text-align: center;
+        background-color: #fff;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .welcome-container h1 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+    .welcome-container p {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 18px;
+    }
+    .login-button {
+        display: inline-block;
+        background-color: #4285f4;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 18px;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+    .login-button:hover {
+        background-color: #357ae8;
+    }
+    .google-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+
+/* FontAwesome fallback for icons if not already included */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
