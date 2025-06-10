@@ -201,6 +201,7 @@ if __name__ == '__main__':
         print(f"SSL test failed: {e}")
 
     with app.app_context():
+        # db.drop_all()  # Uncomment to reset the database
         db.create_all()
 
     app.run(debug=True, port=5001, use_reloader=True)
