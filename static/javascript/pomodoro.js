@@ -124,6 +124,12 @@ function resetTimer() {
 
 function nextSession() {
     if (mode === "work") {
+        // Notify server of completed Pomodoro
+        fetch('/api/pomodoro/complete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'minutes=' + encodeURIComponent(settings.work)
+        });
         if (cycle < settings.cyclesBeforeLong) {
             mode = "shortBreak";
             timeLeft = settings.shortBreak * 60;

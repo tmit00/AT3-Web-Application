@@ -9,6 +9,21 @@
 {% block content %} 
 
 <div class="container">
+    <!-- User Info and Stats -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <div>
+            <strong>Logged in as:</strong> {{ user.email }}
+        </div>
+        <div>
+            <span style="font-weight:600; color:#43e97b;">
+                You completed {{ pomodoros_today }} Pomodoros today!
+            </span>
+            <span style="margin-left:18px; color:#7b1fa2;">
+                Total focus time: {{ focus_minutes_today }} minutes
+            </span>
+        </div>
+    </div>
+
     <!-- Main heading for the Tasks page -->
     <h1>Tasks</h1>
 

@@ -4,9 +4,9 @@ import secrets
 import requests
 import certifi
 import ssl
-from flask import Flask, render_template, url_for, redirect, request, session, flash
+from flask import Flask, render_template, url_for, redirect, request, session, flash, jsonify
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, date
 from data import db, Task, User
 from routes import register_blueprints
 from task import api_bp
@@ -178,6 +178,35 @@ def logout():
     session.pop('oauth_state', None)
     return redirect(url_for('index'))
 
+# --- Pomodoro Stats Tracking ---
+def get_stats_for_user(user_email):
+    # Store stats in session for simplicity (could use DB for persistence)
+    stats = session.get('pomodoro_stats', {})
+    today_str = str(date.today())
+    user_stats = stats.get(user_email, {})
+    today_stats = user_stats.get(today_str, {"pomodoros": 0, "focus_minutes": 0})
+    return today_stats
+
+def increment_pomodoro_stat(user_email, minutes):
+    stats = session.get('pomodoro_stats', {})
+    today_str = str(date.today())
+    user_stats = stats.get(user_email, {})
+    today_stats = user_stats.get(today_str, {"pomodoros": 0, "focus_minutes": 0})
+    today_stats["pomodoros"] += 1
+    today_stats["focus_minutes"] += minutes
+    user_stats[today_str] = today_stats
+    stats[user_email] = user_stats
+    session['pomodoro_stats'] = stats
+
+@app.route('/api/pomodoro/complete', methods=['POST'])
+def pomodoro_complete():
+    if 'user' not in session:
+        return jsonify({"error": "Not logged in"}), 401
+    user_email = session['user']['email']
+    minutes = int(request.form.get('minutes', 25))
+    increment_pomodoro_stat(user_email, minutes)
+    return jsonify({"success": True})
+
 # Dashboard
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
@@ -193,7 +222,18 @@ def dashboard():
         if task.date:
             task.is_overdue = task.date < today and not task.is_complete
 
-    return render_template('dashboard.html', tasks=all_tasks, user=session['user'])
+    # Get today's stats
+    today_stats = get_stats_for_user(user_email)
+    pomodoros_today = today_stats.get("pomodoros", 0)
+    focus_minutes_today = today_stats.get("focus_minutes", 0)
+
+    return render_template(
+        'dashboard.html',
+        tasks=all_tasks,
+        user=session['user'],
+        pomodoros_today=pomodoros_today,
+        focus_minutes_today=focus_minutes_today
+    )
 
 # Run server
 if __name__ == '__main__':
