@@ -92,3 +92,9 @@ def pomodoro():
     if 'user' not in session:
         return redirect(url_for('login'))
     return render_template('pomodoro.html')
+
+@todo_routes.route('/pomodoro/games')
+def pomodoro_games():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    return render_template('games.html')

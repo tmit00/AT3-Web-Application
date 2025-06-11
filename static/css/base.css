@@ -433,7 +433,7 @@ td {
     border-radius: 18px;
     box-shadow: 0 6px 32px rgba(44,62,80,0.10), 0 1.5px 6px rgba(44,62,80,0.04);
     padding: 48px 40px 40px 40px;
-    max-width: 600px;
+    max-width: 740px;
     width: 100%;
     margin: 40px auto 0 auto;
     transition: box-shadow 0.2s;
@@ -462,6 +462,7 @@ td {
     border-radius: 10px;
     font-size: 1.1rem;
     font-weight: 700;
+    text-decoration: none;
     cursor: pointer;
     background: linear-gradient(135deg, #4f8cff 0%, #3358e6 100%);
     color: #fff;

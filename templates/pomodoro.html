@@ -38,6 +38,7 @@
         <button class="pomodoro-btn" id="pause-btn" onclick="pauseTimer()">Pause</button>
         <button class="pomodoro-btn reset" onclick="resetTimer()">Reset</button>
         <button id="settings-btn" class="pomodoro-btn">&#9881;</button>
+        <a href="{{ url_for('todo_routes.pomodoro_games') }}" class="pomodoro-btn" style="background:linear-gradient(135deg,#43e97b 0%,#4f8cff 100%);">Games</a>
     </div>
     <div class="pomodoro-cycle-info">
         <span id="cycle-info">Pomodoro 1 of 4</span>
