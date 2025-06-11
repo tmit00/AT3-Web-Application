@@ -12,10 +12,12 @@ const DEFAULTS = {
 let settings = {...DEFAULTS};
 let timer = null;
 let running = false;
+let paused = false;
 let mode = "work"; // work, shortBreak, longBreak
 let cycle = 1;
 let timeLeft = settings.work * 60;
 let totalTime = settings.work * 60;
+let selectedTaskId = null;
 
 // DOM elements
 const timerEl = document.getElementById('timer');
@@ -56,6 +58,12 @@ function updateDisplay() {
             ? "Short Break"
             : "Long Break");
     updateProgressRing();
+
+    // Show selected task in the dropdown if available
+    const taskSelect = document.getElementById('pomodoro-task-select');
+    if (taskSelect && selectedTaskId !== null) {
+        taskSelect.value = selectedTaskId;
+    }
 }
 
 function updateProgressRing() {
@@ -76,7 +84,9 @@ function updateProgressRing() {
 function startTimer() {
     if (running) return;
     running = true;
+    paused = false;
     timer = setInterval(() => {
+        if (paused) return;
         if (timeLeft > 0) {
             timeLeft--;
             updateDisplay();
@@ -89,13 +99,26 @@ function startTimer() {
     }, 1000);
 }
 
+function pauseTimer() {
+    paused = !paused;
+    const pauseBtn = document.getElementById('pause-btn');
+    if (paused) {
+        pauseBtn.textContent = "Resume";
+    } else {
+        pauseBtn.textContent = "Pause";
+    }
+}
+
 function resetTimer() {
     clearInterval(timer);
     running = false;
+    paused = false;
     mode = "work";
     cycle = 1;
     timeLeft = settings.work * 60;
     totalTime = settings.work * 60;
+    const pauseBtn = document.getElementById('pause-btn');
+    if (pauseBtn) pauseBtn.textContent = "Pause";
     updateDisplay();
 }
 
@@ -163,9 +186,37 @@ settingsForm.onsubmit = function(e) {
     modal.style.display = "none";
 };
 
+// --- Default Button Logic ---
+document.getElementById('default-settings-btn').onclick = function() {
+    settings = {...DEFAULTS};
+    saveSettings();
+    // Update form fields to default values
+    document.getElementById('work-duration').value = settings.work;
+    document.getElementById('short-break-duration').value = settings.shortBreak;
+    document.getElementById('long-break-duration').value = settings.longBreak;
+    document.getElementById('cycles-before-long').value = settings.cyclesBeforeLong;
+    document.getElementById('sound-select').value = settings.sound;
+};
+
+// --- Task Selection Logic ---
+const taskSelect = document.getElementById('pomodoro-task-select');
+if (taskSelect) {
+    taskSelect.addEventListener('change', function() {
+        selectedTaskId = this.value;
+        localStorage.setItem('pomodoroSelectedTask', selectedTaskId);
+    });
+}
+
 // --- Init ---
 function initPomodoro() {
     loadSettings();
+    // Restore selected task from localStorage
+    selectedTaskId = localStorage.getItem('pomodoroSelectedTask') || null;
     resetTimer();
+    // Set dropdown value if available
+    const taskSelect = document.getElementById('pomodoro-task-select');
+    if (taskSelect && selectedTaskId) {
+        taskSelect.value = selectedTaskId;
+    }
 }
 window.onload = initPomodoro;

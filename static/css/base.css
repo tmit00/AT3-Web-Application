@@ -433,7 +433,7 @@ td {
     border-radius: 18px;
     box-shadow: 0 6px 32px rgba(44,62,80,0.10), 0 1.5px 6px rgba(44,62,80,0.04);
     padding: 48px 40px 40px 40px;
-    max-width: 420px;
+    max-width: 600px;
     width: 100%;
     margin: 40px auto 0 auto;
     transition: box-shadow 0.2s;
@@ -444,7 +444,7 @@ td {
 }
 
 #timer {
-    font-size: 3.2rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: #7b1fa2;
     letter-spacing: 2px;
@@ -487,6 +487,28 @@ td {
 .pomodoro-btn.reset:hover {
     background: linear-gradient(135deg, #f09819 0%, #ff5858 100%);
     box-shadow: 0 4px 16px rgba(255,88,88,0.12);
+}
+
+/* Pomodoro Pause Button - Orange */
+#pause-btn.pomodoro-btn,
+.pomodoro-btn.pause {
+    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+    color: #fff;
+}
+#pause-btn.pomodoro-btn:hover,
+.pomodoro-btn.pause:hover {
+    background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+    box-shadow: 0 4px 16px rgba(255,152,0,0.12);
+}
+
+/* Pomodoro Settings Button - Blue Grey */
+#settings-btn.pomodoro-btn {
+    background: linear-gradient(135deg, #607d8b 0%, #90a4ae 100%);
+    color: #fff;
+}
+#settings-btn.pomodoro-btn:hover {
+    background: linear-gradient(135deg, #90a4ae 0%, #607d8b 100%);
+    box-shadow: 0 4px 16px rgba(96,125,139,0.12);
 }
 
 /* --- Pomodoro Modal Styles --- */

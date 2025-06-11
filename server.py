@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from data import db, Task, User
 from routes import register_blueprints
+from task import api_bp
 
 # Load environment variables
 load_dotenv()
@@ -38,6 +39,9 @@ GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
 # Init DB and routes
 db.init_app(app)
 register_blueprints(app)
+
+# Register API blueprint for tasks
+app.register_blueprint(api_bp)
 
 # Home route
 @app.route('/')

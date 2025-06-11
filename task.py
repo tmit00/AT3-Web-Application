@@ -1,5 +1,7 @@
 from data import db, Task
-from flask import session
+from flask import session, jsonify, Blueprint
+
+api_bp = Blueprint('api', __name__)
 
 def get_user_email():
     return session.get('user', {}).get('email', 'anonymous@example.com')
@@ -26,3 +28,14 @@ def user_delete_task(task_id):
     if task and task.user_email == user_email:
         db.session.delete(task)
         db.session.commit()
+
+@api_bp.route('/api/tasks')
+def api_tasks():
+    user_email = get_user_email()
+    tasks = Task.query.filter_by(user_email=user_email).all()
+    return jsonify({
+        "tasks": [
+            {"id": t.id, "title": t.title}
+            for t in tasks
+        ]
+    })

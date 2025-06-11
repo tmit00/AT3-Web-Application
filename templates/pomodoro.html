@@ -29,8 +29,13 @@
         </div>
     </div>
     <div id="session-label" class="pomodoro-session-label">Work</div>
+    <div style="margin: 18px 0 10px 0; text-align: center;">
+        <label for="pomodoro-task-select" style="font-weight:600;">Working on:</label>
+        <select id="pomodoro-task-select" style="margin-left:8px; padding:6px 10px; border-radius:6px;"></select>
+    </div>
     <div class="pomodoro-btn-row">
         <button class="pomodoro-btn" onclick="startTimer()">Start</button>
+        <button class="pomodoro-btn" id="pause-btn" onclick="pauseTimer()">Pause</button>
         <button class="pomodoro-btn reset" onclick="resetTimer()">Reset</button>
         <button id="settings-btn" class="pomodoro-btn">&#9881;</button>
     </div>
@@ -58,15 +63,40 @@
                 </select>
             </label>
             <br>
-            <button type="submit" class="pomodoro-btn" style="margin-top:10px;">Save</button>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button type="submit" class="pomodoro-btn">Save</button>
+                <button type="button" class="pomodoro-btn reset" id="default-settings-btn" style="background:linear-gradient(135deg,#bdbdbd 0%,#757575 100%);">Default</button>
+            </div>
         </form>
     </div>
 </div>
 
 <!-- Audio elements for sounds -->
-<audio id="sound-bell" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae3c7.mp3"></audio>
-<audio id="sound-chime" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b1bfa.mp3"></audio>
-<audio id="sound-beep" src="https://cdn.pixabay.com/audio/2022/03/15/audio_115b9b1bfa.mp3"></audio>
+<audio id="sound-bell" src="{{ url_for('static', filename='audio/bell-notification-337658.mp3') }}"></audio>
+<audio id="sound-chime" src="{{ url_for('static', filename='audio/new-notification-03-323602.mp3') }}"></audio>
+<audio id="sound-beep" src="{{ url_for('static', filename='audio/notification-beep-229154.mp3') }}"></audio>
 
 <script src="{{ url_for('static', filename='javascript/pomodoro.js') }}"></script>
+<script>
+    // Fetch tasks for the dropdown (AJAX)
+    fetch('/api/tasks')
+        .then(resp => resp.json())
+        .then(data => {
+            const select = document.getElementById('pomodoro-task-select');
+            select.innerHTML = '';
+            if (data && data.tasks && data.tasks.length > 0) {
+                data.tasks.forEach(task => {
+                    const opt = document.createElement('option');
+                    opt.value = task.id;
+                    opt.textContent = task.title;
+                    select.appendChild(opt);
+                });
+            } else {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'No tasks available';
+                select.appendChild(opt);
+            }
+        });
+</script>
 {% endblock %}
