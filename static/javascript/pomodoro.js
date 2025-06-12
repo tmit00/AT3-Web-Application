@@ -46,6 +46,47 @@ function saveSettings() {
     localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
 }
 
+// --- Timer State Persistence ---
+function saveTimerState() {
+    const state = {
+        mode,
+        cycle,
+        timeLeft,
+        totalTime,
+        running,
+        paused,
+        selectedTaskId,
+        timestamp: Date.now()
+    };
+    localStorage.setItem('pomodoroTimerState', JSON.stringify(state));
+}
+function loadTimerState() {
+    const stateStr = localStorage.getItem('pomodoroTimerState');
+    if (!stateStr) return false;
+    try {
+        const state = JSON.parse(stateStr);
+        mode = state.mode || "work";
+        cycle = state.cycle || 1;
+        totalTime = state.totalTime || (settings.work * 60);
+        selectedTaskId = state.selectedTaskId || null;
+        running = !!state.running;
+        paused = !!state.paused;
+        // Adjust timeLeft if timer was running and not paused
+        if (state.running && !state.paused && state.timestamp) {
+            const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+            timeLeft = Math.max(0, (state.timeLeft || totalTime) - elapsed);
+        } else {
+            timeLeft = state.timeLeft || totalTime;
+        }
+        return true;
+    } catch {
+        return false;
+    }
+}
+function clearTimerState() {
+    localStorage.removeItem('pomodoroTimerState');
+}
+
 // --- UI Update ---
 function updateDisplay() {
     const minutes = Math.floor(timeLeft / 60);
@@ -64,6 +105,7 @@ function updateDisplay() {
     if (taskSelect && selectedTaskId !== null) {
         taskSelect.value = selectedTaskId;
     }
+    saveTimerState();
 }
 
 function updateProgressRing() {
@@ -82,18 +124,21 @@ function updateProgressRing() {
 
 // --- Timer Logic ---
 function startTimer() {
-    if (running) return;
+    if (timer) return;
     running = true;
     paused = false;
+    saveTimerState();
     timer = setInterval(() => {
         if (paused) return;
         if (timeLeft > 0) {
             timeLeft--;
             updateDisplay();
+            saveTimerState();
         } else {
             playSound();
             clearInterval(timer);
             running = false;
+            saveTimerState();
             nextSession();
         }
     }, 1000);
@@ -107,10 +152,12 @@ function pauseTimer() {
     } else {
         pauseBtn.textContent = "Pause";
     }
+    saveTimerState();
 }
 
 function resetTimer() {
     clearInterval(timer);
+    timer = null;
     running = false;
     paused = false;
     mode = "work";
@@ -120,6 +167,7 @@ function resetTimer() {
     const pauseBtn = document.getElementById('pause-btn');
     if (pauseBtn) pauseBtn.textContent = "Pause";
     updateDisplay();
+    clearTimerState();
 }
 
 function nextSession() {
@@ -218,11 +266,24 @@ function initPomodoro() {
     loadSettings();
     // Restore selected task from localStorage
     selectedTaskId = localStorage.getItem('pomodoroSelectedTask') || null;
-    resetTimer();
-    // Set dropdown value if available
-    const taskSelect = document.getElementById('pomodoro-task-select');
-    if (taskSelect && selectedTaskId) {
-        taskSelect.value = selectedTaskId;
+    // Try to restore timer state
+    if (loadTimerState()) {
+        updateDisplay();
+        // Set dropdown value if available
+        const taskSelect = document.getElementById('pomodoro-task-select');
+        if (taskSelect && selectedTaskId) {
+            taskSelect.value = selectedTaskId;
+        }
+        if (running && !paused && timeLeft > 0) {
+            startTimer();
+        }
+    } else {
+        resetTimer();
+        // Set dropdown value if available
+        const taskSelect = document.getElementById('pomodoro-task-select');
+        if (taskSelect && selectedTaskId) {
+            taskSelect.value = selectedTaskId;
+        }
     }
 }
 window.onload = initPomodoro;
