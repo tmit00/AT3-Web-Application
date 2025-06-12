@@ -5,16 +5,171 @@
 {% block content %}
 <div class="pomodoro-container">
     <h1>Games</h1>
-    <p style="text-align:center; margin-bottom:24px;">
-        Enjoy a quick game during your Pomodoro break!<br>
-        (More games coming soon.)
+    <p class="game-intro">
+        Enjoy a quick game during your Pomodoro break!
     </p>
-    <div style="display:flex; flex-direction:column; align-items:center; gap:24px;">
-        <!-- Example: Simple embedded game (replace with real games as needed) -->
-        <iframe src="https://playtictactoe.org/" width="340" height="400" style="border:1px solid #ccc; border-radius:10px;"></iframe>
-        <!-- Add more games or links here -->
+    <div class="snake-game-outer">
+        <!-- Simple Snake Game -->
+        <div class="snake-game-container">
+            <div id="highscore" class="snake-highscore">
+                High Score: 0
+            </div>
+            <div class="snake-canvas-wrapper">
+                <canvas id="snakeGame" width="340" height="400"></canvas>
+                <div id="countdownOverlay" class="snake-countdown-overlay"></div>
+            </div>
+            <button id="restartBtn" class="snake-restart-btn">Restart</button>
+        </div>
+        <script>
+        // Simple Snake Game in JavaScript with Restart, High Score, Countdown, and Safe Food Spawn
+        const canvas = document.getElementById('snakeGame');
+        const ctx = canvas.getContext('2d');
+        const box = 20;
+        let snake, direction, nextDirection, food, score, game, gameOver;
+        let highScore = localStorage.getItem('snakeHighScore') ? parseInt(localStorage.getItem('snakeHighScore')) : 0;
+        const highscoreDiv = document.getElementById('highscore');
+        const countdownOverlay = document.getElementById('countdownOverlay');
+        let countdownTimeout, countdownValue;
+
+        function updateHighScoreDisplay() {
+            highscoreDiv.textContent = "High Score: " + highScore;
+        }
+
+        function getRandomFoodPosition() {
+            let newFood;
+            let collision;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random()*((canvas.width/box)-1)) * box,
+                    y: Math.floor(Math.random()*((canvas.height/box)-1)) * box
+                };
+                collision = snake.some(segment => segment.x === newFood.x && segment.y === newFood.y);
+            } while (collision);
+            return newFood;
+        }
+
+        function resetGame() {
+            snake = [{x: 8*box, y: 10*box}];
+            direction = "RIGHT";
+            nextDirection = "RIGHT";
+            food = getRandomFoodPosition();
+            score = 0;
+            gameOver = false;
+            updateHighScoreDisplay();
+            if (game) clearInterval(game);
+            showCountdown();
+        }
+
+        function showCountdown() {
+            countdownValue = 3;
+            countdownOverlay.style.display = "flex";
+            countdownOverlay.textContent = countdownValue;
+            function nextCount() {
+                countdownValue--;
+                if (countdownValue > 0) {
+                    countdownOverlay.textContent = countdownValue;
+                    countdownTimeout = setTimeout(nextCount, 700);
+                } else {
+                    countdownOverlay.textContent = "GO!";
+                    setTimeout(() => {
+                        countdownOverlay.style.display = "none";
+                        startGame();
+                    }, 500);
+                }
+            }
+            countdownTimeout = setTimeout(nextCount, 700);
+        }
+
+        function startGame() {
+            if (game) clearInterval(game);
+            game = setInterval(draw, 80);
+        }
+
+        document.addEventListener('keydown', dir);
+        function dir(e) {
+            if (gameOver || countdownOverlay.style.display === "flex") return;
+            // Prevent reversing direction
+            if (e.key === "ArrowLeft" && direction !== "RIGHT" && direction !== "LEFT") nextDirection = "LEFT";
+            else if (e.key === "ArrowUp" && direction !== "DOWN" && direction !== "UP") nextDirection = "UP";
+            else if (e.key === "ArrowRight" && direction !== "LEFT" && direction !== "RIGHT") nextDirection = "RIGHT";
+            else if (e.key === "ArrowDown" && direction !== "UP" && direction !== "DOWN") nextDirection = "DOWN";
+        }
+
+        function draw() {
+            direction = nextDirection;
+            ctx.fillStyle = "#222";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = i === 0 ? "#4caf50" : "#8bc34a";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            }
+            ctx.fillStyle = "#ff5252";
+            ctx.fillRect(food.x, food.y, box, box);
+            ctx.fillStyle = "#fff";
+            ctx.font = "18px Arial";
+            ctx.fillText("Score: " + score, 10, 24);
+
+            // Snake movement
+            let headX = snake[0].x;
+            let headY = snake[0].y;
+            if (direction === "LEFT") headX -= box;
+            if (direction === "UP") headY -= box;
+            if (direction === "RIGHT") headX += box;
+            if (direction === "DOWN") headY += box;
+
+            // Game over conditions
+            if (
+                headX < 0 || headX >= canvas.width ||
+                headY < 0 || headY >= canvas.height ||
+                snake.some(segment => segment.x === headX && segment.y === headY)
+            ) {
+                clearInterval(game);
+                gameOver = true;
+                // Update high score if needed
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('snakeHighScore', highScore);
+                    updateHighScoreDisplay();
+                }
+                ctx.fillStyle = "#fff";
+                ctx.font = "32px Arial";
+                ctx.fillText("Game Over!", 80, canvas.height/2);
+                return;
+            }
+
+            // Eat food
+            if (headX === food.x && headY === food.y) {
+                score++;
+                snake.unshift({x: headX, y: headY});
+                food = getRandomFoodPosition();
+            } else {
+                snake.pop();
+                snake.unshift({x: headX, y: headY});
+            }
+        }
+
+        document.getElementById('restartBtn').onclick = function() {
+            if (game) clearInterval(game);
+            if (countdownTimeout) clearTimeout(countdownTimeout);
+            resetGame();
+        };
+
+        // Allow pressing Enter to restart the game
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Enter") {
+                if (game) clearInterval(game);
+                if (countdownTimeout) clearTimeout(countdownTimeout);
+                resetGame();
+            }
+        });
+
+        // Initialize
+        updateHighScoreDisplay();
+        resetGame();
+        </script>
+        <!-- End Snake Game -->
     </div>
-    <div style="text-align:center; margin-top:32px;">
+    <div class="back-to-pomodoro">
         <a href="{{ url_for('todo_routes.pomodoro') }}" class="pomodoro-btn reset">Back to Pomodoro</a>
     </div>
 </div>
