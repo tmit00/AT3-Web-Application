@@ -92,7 +92,6 @@ function updateDisplay() {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    sessionLabel.textContent = mode === "work" ? "Work" : (mode === "shortBreak" ? "Short Break" : "Long Break");
     cycleInfo.textContent = mode === "work"
         ? `Pomodoro ${cycle} of ${settings.cyclesBeforeLong}`
         : (mode === "shortBreak"
@@ -104,6 +103,10 @@ function updateDisplay() {
     const taskSelect = document.getElementById('pomodoro-task-select');
     if (taskSelect && selectedTaskId !== null) {
         taskSelect.value = selectedTaskId;
+    }
+    // Update Games button state if present
+    if (typeof updateGamesButtonState === "function") {
+        updateGamesButtonState(mode);
     }
     saveTimerState();
 }
@@ -123,8 +126,9 @@ function updateProgressRing() {
 }
 
 // --- Timer Logic ---
-function startTimer() {
-    if (timer) return;
+function startTimer(force) {
+    if (timer && !force) return;
+    clearInterval(timer);
     running = true;
     paused = false;
     saveTimerState();
@@ -182,23 +186,30 @@ function nextSession() {
             mode = "shortBreak";
             timeLeft = settings.shortBreak * 60;
             totalTime = timeLeft;
-            cycleInfo.textContent = `Short Break`;
             cycle++;
         } else {
             mode = "longBreak";
             timeLeft = settings.longBreak * 60;
             totalTime = timeLeft;
-            cycleInfo.textContent = `Long Break`;
             cycle = 1;
         }
+        updateDisplay();
+        // Always auto-start the break timer immediately, even if timer is already running
+        startTimer(true);
     } else {
+        // If timer ends during a break, redirect to Pomodoro page and start new work session
         mode = "work";
         timeLeft = settings.work * 60;
-        totalTime = timeLeft;
-        cycleInfo.textContent = `Pomodoro ${cycle} of ${settings.cyclesBeforeLong}`;
+        totalTime = settings.work * 60;
+        updateDisplay();
+        // If on /pomodoro/games, redirect to /pomodoro
+        if (window.location.pathname.startsWith('/pomodoro/games')) {
+            window.location.href = "/pomodoro"; // or full path to main Pomodoro page
+        } else {
+            // Start work timer immediately
+            startTimer(true);
+        }
     }
-    updateDisplay();
-    setTimeout(() => { startTimer(); }, 800); // auto-start next session
 }
 
 // --- Sound ---

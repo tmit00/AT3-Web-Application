@@ -1,3 +1,4 @@
+{% set hide_mini_timer = True %}
 {% extends "base.html" %}
 
 {% block title %}Pomodoro Timer{% endblock %}
@@ -38,7 +39,7 @@
         <button class="pomodoro-btn" id="pause-btn" onclick="pauseTimer()">Pause</button>
         <button class="pomodoro-btn reset" onclick="resetTimer()">Reset</button>
         <button id="settings-btn" class="pomodoro-btn">&#9881;</button>
-        <a href="{{ url_for('todo_routes.pomodoro_games') }}" class="pomodoro-btn" style="background:linear-gradient(135deg,#43e97b 0%,#4f8cff 100%);">Games</a>
+        <a href="{{ url_for('todo_routes.pomodoro_games') }}" class="pomodoro-btn" id="games-btn" style="background:linear-gradient(135deg,#43e97b 0%,#4f8cff 100%);" tabindex="-1" aria-disabled="true" title="Games are only available during breaks">Games</a>
     </div>
     <div class="pomodoro-cycle-info">
         <span id="cycle-info">Pomodoro 1 of 4</span>
@@ -99,5 +100,36 @@
                 select.appendChild(opt);
             }
         });
+
+    // --- Games Button Enable/Disable Logic ---
+    function updateGamesButtonState(mode) {
+        const gamesBtn = document.getElementById('games-btn');
+        if (!gamesBtn) return;
+        if (mode === "shortBreak" || mode === "longBreak") {
+            gamesBtn.classList.remove('disabled');
+            gamesBtn.removeAttribute('aria-disabled');
+            gamesBtn.setAttribute('tabindex', "0");
+            gamesBtn.title = "Play a game during your break!";
+            gamesBtn.style.pointerEvents = "auto";
+            gamesBtn.style.opacity = "1";
+        } else {
+            gamesBtn.classList.add('disabled');
+            gamesBtn.setAttribute('aria-disabled', "true");
+            gamesBtn.setAttribute('tabindex', "-1");
+            gamesBtn.title = "Games are only available during breaks";
+            gamesBtn.style.pointerEvents = "none";
+            gamesBtn.style.opacity = "0.5";
+        }
+    }
+    // Initial state
+    document.addEventListener("DOMContentLoaded", function() {
+        // Try to get mode from localStorage
+        let mode = "work";
+        try {
+            const state = JSON.parse(localStorage.getItem('pomodoroTimerState'));
+            if (state && state.mode) mode = state.mode;
+        } catch {}
+        updateGamesButtonState(mode);
+    });
 </script>
 {% endblock %}

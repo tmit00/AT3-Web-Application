@@ -18,7 +18,6 @@
             <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
             <li><a href="{{ url_for('calendar_routes.calendar_server') }}">Calendar</a></li>
             <li><a href="{{ url_for('todo_routes.pomodoro') }}">Pomodoro Timer</a></li>
-            <li><a href="{{ url_for('todo_routes.pomodoro_games') }}">Games</a></li>
         </ul>
         <!-- Logout button at the bottom -->
         <div class="logout-container">
@@ -28,5 +27,54 @@
     <div class="main-content">
         {% block content %}{% endblock %}
     </div>
+    {% if not hide_mini_timer %}
+    <!-- Mini Pomodoro Timer -->
+    <div id="mini-pomodoro-timer" style="display:none;">
+        <div id="mini-pomodoro-title">Work</div>
+        <div id="mini-pomodoro-time">25:00</div>
+    </div>
+    <script>
+    // Mini Pomodoro Timer logic
+    (function() {
+        function updateMiniTimer() {
+            const mini = document.getElementById('mini-pomodoro-timer');
+            const stateStr = localStorage.getItem('pomodoroTimerState');
+            if (!stateStr || !mini) {
+                mini && (mini.style.display = "none");
+                return;
+            }
+            try {
+                const state = JSON.parse(stateStr);
+                let timeLeft = state.timeLeft || 0;
+                // If running and not paused, tick down based on elapsed time
+                if (state.running && !state.paused && state.timestamp) {
+                    const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+                    timeLeft = Math.max(0, timeLeft - elapsed);
+                }
+                if (timeLeft > 0) {
+                    mini.style.display = "flex";
+                    let title = "Work";
+                    if (state.mode === "shortBreak") title = "Short Break";
+                    else if (state.mode === "longBreak") title = "Long Break";
+                    document.getElementById('mini-pomodoro-title').textContent = title;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    document.getElementById('mini-pomodoro-time').textContent =
+                        String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
+                } else {
+                    mini.style.display = "none";
+                }
+            } catch {
+                mini.style.display = "none";
+            }
+        }
+        setInterval(updateMiniTimer, 500);
+
+        document.getElementById('mini-pomodoro-timer').onclick = function() {
+            window.location.href = "{{ url_for('todo_routes.pomodoro') }}";
+        };
+    })();
+    </script>
+    {% endif %}
 </body>
 </html>
