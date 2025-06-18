@@ -134,6 +134,11 @@
                 ctx.fillStyle = "#fff";
                 ctx.font = "32px Arial";
                 ctx.fillText("Game Over!", 80, canvas.height/2);
+                
+                // Check if we should redirect to Pomodoro page (if break time is over)
+                if (typeof window.checkGameOverRedirect === 'function') {
+                    window.checkGameOverRedirect();
+                }
                 return;
             }
 
@@ -173,4 +178,167 @@
         <a href="{{ url_for('todo_routes.pomodoro') }}" class="pomodoro-btn reset">Back to Pomodoro</a>
     </div>
 </div>
+
+<!-- Timer monitoring script for automatic redirect and persistence -->
+<script>
+// Monitor the Pomodoro timer state and redirect when break ends AND game is lost
+(function() {
+    let timerInterval;
+    let breakTimeExpired = false;
+    let shouldRedirectOnGameOver = false;
+    
+    function updateTimerState() {
+        const stateStr = localStorage.getItem('pomodoroTimerState');
+        if (!stateStr) return;
+        
+        try {
+            const state = JSON.parse(stateStr);
+            
+            // Only proceed if timer is running and not paused
+            if (!state.running || state.paused) return;
+            
+            let timeLeft = state.timeLeft || 0;
+            
+            // Calculate actual time left based on elapsed time
+            if (state.timestamp) {
+                const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+                timeLeft = Math.max(0, timeLeft - elapsed);
+            }
+            
+            // Update the state with new time and timestamp
+            const updatedState = {
+                ...state,
+                timeLeft: timeLeft,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('pomodoroTimerState', JSON.stringify(updatedState));
+            
+            // Check if break time has expired
+            if ((state.mode === "shortBreak" || state.mode === "longBreak") && timeLeft <= 0) {
+                if (!breakTimeExpired) {
+                    breakTimeExpired = true;
+                    shouldRedirectOnGameOver = true;
+                    
+                    // Play sound notification
+                    playBreakEndSound();
+                    
+                    // Show notification to user that break is over but let them finish their game
+                    showBreakEndNotification();
+                }
+                
+                // If game is over (or not running), redirect immediately
+                if (gameOver || !game) {
+                    redirectToPomodoro();
+                    return;
+                }
+            }
+            
+            // If somehow we're in work mode, redirect immediately
+            if (state.mode === "work") {
+                redirectToPomodoro();
+                return;
+            }
+            
+        } catch (e) {
+            // If there's an error parsing state, redirect to be safe
+            console.error('Error parsing timer state:', e);
+            redirectToPomodoro();
+        }
+    }
+    
+    function showBreakEndNotification() {
+        // Create a notification overlay
+        const notification = document.createElement('div');
+        notification.id = 'break-end-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s ease;
+        `;
+        notification.textContent = '⏰ Break time is over! Finish your game to return to work.';
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(notification);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+    
+    function redirectToPomodoro() {
+        // Clear any game intervals to prevent issues
+        if (typeof game !== 'undefined' && game) clearInterval(game);
+        if (typeof countdownTimeout !== 'undefined' && countdownTimeout) clearTimeout(countdownTimeout);
+        
+        // Clear our timer interval
+        if (timerInterval) clearInterval(timerInterval);
+        
+        // Redirect to pomodoro page
+        window.location.href = "{{ url_for('todo_routes.pomodoro') }}";
+    }
+    
+    function playBreakEndSound() {
+        // Try to play a sound notification if audio elements exist
+        const audioIds = ['sound-bell', 'sound-chime', 'sound-beep'];
+        for (let audioId of audioIds) {
+            const audio = document.getElementById(audioId);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => {}); // Ignore play errors
+                break;
+            }
+        }
+    }
+    
+    // Update timer state every second
+    timerInterval = setInterval(updateTimerState, 1000);
+    
+    // Check immediately when page loads
+    updateTimerState();
+    
+    // Clean up interval when page unloads
+    window.addEventListener('beforeunload', function() {
+        if (timerInterval) clearInterval(timerInterval);
+    });
+    
+    // Expose function to check if we should redirect on game over
+    window.checkGameOverRedirect = function() {
+        if (shouldRedirectOnGameOver && gameOver) {
+            setTimeout(redirectToPomodoro, 1000); // Small delay to show "Game Over" message
+        }
+    };
+})();
+</script>
+
+<!-- Add audio elements for break end notifications -->
+<audio id="sound-bell" style="display: none;">
+    <source src="{{ url_for('static', filename='audio/bell-notification-337658.mp3') }}" type="audio/mpeg">
+</audio>
+<audio id="sound-chime" style="display: none;">
+    <source src="{{ url_for('static', filename='audio/new-notification-03-323602.mp3') }}" type="audio/mpeg">
+</audio>
+<audio id="sound-beep" style="display: none;">
+    <source src="{{ url_for('static', filename='audio/notification-beep-229154.mp3') }}" type="audio/mpeg">
+</audio>
 {% endblock %}
