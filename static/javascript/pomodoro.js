@@ -131,7 +131,22 @@ function startTimer(force) {
     clearInterval(timer);
     running = true;
     paused = false;
+    
+    // Store task name for popout timer
+    const taskSelect = document.getElementById('pomodoro-task-select');
+    if (taskSelect && taskSelect.selectedIndex >= 0) {
+        const selectedOption = taskSelect.options[taskSelect.selectedIndex];
+        const taskName = selectedOption.textContent;
+        const state = JSON.parse(localStorage.getItem('pomodoroTimerState') || '{}');
+        state.selectedTaskName = taskName;
+        localStorage.setItem('pomodoroTimerState', JSON.stringify(state));
+    }
+    
     saveTimerState();
+    
+    // Show popout timer when starting
+    localStorage.setItem('popoutTimerVisible', 'true');
+    
     timer = setInterval(() => {
         if (paused) return;
         if (timeLeft > 0) {
@@ -197,16 +212,19 @@ function nextSession() {
         // Always auto-start the break timer immediately, even if timer is already running
         startTimer(true);
     } else {
-        // If timer ends during a break, redirect to Pomodoro page and start new work session
+        // If timer ends during a break, set up work session but don't auto-start
         mode = "work";
         timeLeft = settings.work * 60;
         totalTime = settings.work * 60;
         updateDisplay();
-        // If on /pomodoro/games, redirect to /pomodoro
+        saveTimerState();
+        
+        // If on /pomodoro/games, let the games page handle the transition
         if (window.location.pathname.startsWith('/pomodoro/games')) {
-            window.location.href = "/pomodoro"; // or full path to main Pomodoro page
+            // Games page will detect break expiration and redirect
+            return;
         } else {
-            // Start work timer immediately
+            // Start work timer immediately only if on main pomodoro page
             startTimer(true);
         }
     }

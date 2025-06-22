@@ -28,53 +28,47 @@
         {% block content %}{% endblock %}
     </div>
     {% if not hide_mini_timer %}
-    <!-- Mini Pomodoro Timer -->
-    <div id="mini-pomodoro-timer" style="display:none;">
-        <div id="mini-pomodoro-title">Work</div>
-        <div id="mini-pomodoro-time">25:00</div>
+    <!-- Popout Pomodoro Timer -->
+    <div id="popout-pomodoro-timer" style="display:none;">
+        <div class="popout-header">
+            <div class="popout-drag-handle">⋮⋮</div>
+            <div class="popout-controls">
+                <button id="popout-minimize-btn" class="popout-control-btn">−</button>
+                <button id="popout-close-btn" class="popout-control-btn">×</button>
+            </div>
+        </div>
+        <div class="popout-content" id="popout-content">
+            <div class="popout-progress-container">
+                <svg id="popout-progress-ring" width="80" height="80">
+                    <circle cx="40" cy="40" r="35" stroke="#f0f0f0" stroke-width="6" fill="none"/>
+                    <circle id="popout-progress-bar" cx="40" cy="40" r="35" stroke="#43e97b" stroke-width="6" 
+                            fill="none" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s;"/>
+                </svg>
+                <div class="popout-timer-display">
+                    <div id="popout-timer-time">25:00</div>
+                    <div id="popout-timer-mode">Work</div>
+                </div>
+            </div>
+            <div class="popout-task-info" id="popout-task-info" style="display:none;">
+                <span id="popout-task-name">No task selected</span>
+            </div>
+            <div class="popout-buttons">
+                <button id="popout-start-btn" class="popout-btn primary">▶</button>
+                <button id="popout-pause-btn" class="popout-btn secondary">⏸</button>
+                <button id="popout-reset-btn" class="popout-btn danger">⏹</button>
+                <button id="popout-games-btn" class="popout-btn games disabled" title="Games are only available during breaks">🎮</button>
+                <button id="popout-expand-btn" class="popout-btn expand">⛶</button>
+            </div>
+            <div class="popout-cycle-info">
+                <span id="popout-cycle-text">Pomodoro 1 of 4</span>
+            </div>
+        </div>
+        <div class="popout-minimized" id="popout-minimized" style="display:none;">
+            <div id="popout-mini-time">25:00</div>
+            <div id="popout-mini-mode">Work</div>
+        </div>
     </div>
-    <script>
-    // Mini Pomodoro Timer logic
-    (function() {
-        function updateMiniTimer() {
-            const mini = document.getElementById('mini-pomodoro-timer');
-            const stateStr = localStorage.getItem('pomodoroTimerState');
-            if (!stateStr || !mini) {
-                mini && (mini.style.display = "none");
-                return;
-            }
-            try {
-                const state = JSON.parse(stateStr);
-                let timeLeft = state.timeLeft || 0;
-                // If running and not paused, tick down based on elapsed time
-                if (state.running && !state.paused && state.timestamp) {
-                    const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
-                    timeLeft = Math.max(0, timeLeft - elapsed);
-                }
-                if (timeLeft > 0) {
-                    mini.style.display = "flex";
-                    let title = "Work";
-                    if (state.mode === "shortBreak") title = "Short Break";
-                    else if (state.mode === "longBreak") title = "Long Break";
-                    document.getElementById('mini-pomodoro-title').textContent = title;
-                    const minutes = Math.floor(timeLeft / 60);
-                    const seconds = timeLeft % 60;
-                    document.getElementById('mini-pomodoro-time').textContent =
-                        String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
-                } else {
-                    mini.style.display = "none";
-                }
-            } catch {
-                mini.style.display = "none";
-            }
-        }
-        setInterval(updateMiniTimer, 500);
-
-        document.getElementById('mini-pomodoro-timer').onclick = function() {
-            window.location.href = "{{ url_for('todo_routes.pomodoro') }}";
-        };
-    })();
-    </script>
+    <script src="{{ url_for('static', filename='javascript/popout-timer.js') }}"></script>
     {% endif %}
 </body>
 </html>

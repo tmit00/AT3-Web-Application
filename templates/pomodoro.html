@@ -120,6 +120,11 @@
             gamesBtn.style.pointerEvents = "none";
             gamesBtn.style.opacity = "0.5";
         }
+        
+        // Also update popout timer games button if it exists
+        if (typeof window.updatePopoutGamesButtonState === 'function') {
+            window.updatePopoutGamesButtonState(mode);
+        }
     }
     // Initial state
     document.addEventListener("DOMContentLoaded", function() {

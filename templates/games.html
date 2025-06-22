@@ -8,6 +8,9 @@
     <p class="game-intro">
         Enjoy a quick game during your Pomodoro break!
     </p>
+    <div id="break-timer-display" class="break-timer-info" style="display:none;">
+        <span id="break-time-left">Break time: 5:00</span>
+    </div>
     <div class="snake-game-outer">
         <!-- Simple Snake Game -->
         <div class="snake-game-container">
@@ -30,9 +33,157 @@
         const highscoreDiv = document.getElementById('highscore');
         const countdownOverlay = document.getElementById('countdownOverlay');
         let countdownTimeout, countdownValue;
+        
+        // Break timer monitoring
+        let breakTimerMonitor = null;
+        let gameAccessAllowed = false;
+        let breakTimeExpired = false;
+        let lastKnownMode = null;
+        const breakTimerDisplay = document.getElementById('break-timer-display');
+        const breakTimeLeft = document.getElementById('break-time-left');
 
         function updateHighScoreDisplay() {
             highscoreDiv.textContent = "High Score: " + highScore;
+        }
+
+        // Check if game access is allowed based on timer state
+        function checkGameAccess() {
+            const stateStr = localStorage.getItem('pomodoroTimerState');
+            if (!stateStr) {
+                gameAccessAllowed = false;
+                return false;
+            }
+            
+            try {
+                const state = JSON.parse(stateStr);
+                let timeLeft = state.timeLeft || 0;
+                
+                // Calculate actual time left if timer is running
+                if (state.running && !state.paused && state.timestamp) {
+                    const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+                    timeLeft = Math.max(0, timeLeft - elapsed);
+                }
+                
+                // Allow access only during break modes with time remaining
+                const isBreakMode = (state.mode === "shortBreak" || state.mode === "longBreak");
+                const wasBreakMode = gameAccessAllowed; // Track previous state
+                gameAccessAllowed = isBreakMode && timeLeft > 0;
+                
+                // If we were in break mode but now we're not, break has expired
+                if (wasBreakMode && !gameAccessAllowed) {
+                    breakTimeExpired = true;
+                }
+                
+                return gameAccessAllowed;
+            } catch (e) {
+                console.warn('Failed to parse timer state:', e);
+                gameAccessAllowed = false;
+                return false;
+            }
+        }
+
+        // Handle break timer expiration
+        function handleBreakExpiration() {
+            if (game) clearInterval(game);
+            gameOver = true;
+            breakTimeExpired = true;
+            
+            // Show break expired message
+            ctx.fillStyle = "#222";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#fff";
+            ctx.font = "24px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Break Time Over!", canvas.width/2, canvas.height/2 - 20);
+            ctx.font = "16px Arial";
+            ctx.fillText("Returning to work...", canvas.width/2, canvas.height/2 + 10);
+            
+            // Redirect to pomodoro page after a short delay
+            setTimeout(() => {
+                window.location.href = "{{ url_for('todo_routes.pomodoro') }}";
+            }, 2000);
+        }
+
+        // Show access denied message
+        function showAccessDenied() {
+            ctx.fillStyle = "#222";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ff5252";
+            ctx.font = "20px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Games Locked!", canvas.width/2, canvas.height/2 - 30);
+            ctx.fillStyle = "#fff";
+            ctx.font = "14px Arial";
+            ctx.fillText("Start a Pomodoro break", canvas.width/2, canvas.height/2);
+            ctx.fillText("to unlock games", canvas.width/2, canvas.height/2 + 20);
+        }
+
+        // Update break timer display
+        function updateBreakTimerDisplay() {
+            const stateStr = localStorage.getItem('pomodoroTimerState');
+            if (!stateStr || !breakTimerDisplay || !breakTimeLeft) return;
+            
+            try {
+                const state = JSON.parse(stateStr);
+                let timeLeft = state.timeLeft || 0;
+                
+                // Calculate actual time left if timer is running
+                if (state.running && !state.paused && state.timestamp) {
+                    const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+                    timeLeft = Math.max(0, timeLeft - elapsed);
+                }
+                
+                if (timeLeft > 0 && (state.mode === "shortBreak" || state.mode === "longBreak")) {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    const modeText = state.mode === "shortBreak" ? "Break" : "Long Break";
+                    
+                    breakTimeLeft.textContent = `${modeText} time: ${timeStr}`;
+                    breakTimerDisplay.style.display = 'block';
+                } else {
+                    breakTimerDisplay.style.display = 'none';
+                }
+            } catch (e) {
+                breakTimerDisplay.style.display = 'none';
+            }
+        }
+
+        // Monitor break timer continuously
+        function startBreakTimerMonitoring() {
+            if (breakTimerMonitor) clearInterval(breakTimerMonitor);
+            
+            breakTimerMonitor = setInterval(() => {
+                const stateStr = localStorage.getItem('pomodoroTimerState');
+                if (stateStr) {
+                    try {
+                        const state = JSON.parse(stateStr);
+                        const currentMode = state.mode;
+                        
+                        // Detect mode transition from break to work
+                        if (lastKnownMode && 
+                            (lastKnownMode === "shortBreak" || lastKnownMode === "longBreak") && 
+                            currentMode === "work") {
+                            console.log('Detected break-to-work transition');
+                            if (!breakTimeExpired) {
+                                handleBreakExpiration();
+                            }
+                            return;
+                        }
+                        
+                        lastKnownMode = currentMode;
+                    } catch (e) {
+                        console.warn('Failed to parse timer state for monitoring:', e);
+                    }
+                }
+                
+                updateBreakTimerDisplay();
+                if (!checkGameAccess()) {
+                    if (!breakTimeExpired) {
+                        handleBreakExpiration();
+                    }
+                }
+            }, 500); // Check every half second for more responsive detection
         }
 
         function getRandomFoodPosition() {
@@ -49,12 +200,19 @@
         }
 
         function resetGame() {
+            // Check if game access is allowed
+            if (!checkGameAccess()) {
+                showAccessDenied();
+                return;
+            }
+            
             snake = [{x: 8*box, y: 10*box}];
             direction = "RIGHT";
             nextDirection = "RIGHT";
             food = getRandomFoodPosition();
             score = 0;
             gameOver = false;
+            breakTimeExpired = false;
             updateHighScoreDisplay();
             if (game) clearInterval(game);
             showCountdown();
@@ -131,9 +289,18 @@
                     localStorage.setItem('snakeHighScore', highScore);
                     updateHighScoreDisplay();
                 }
-                ctx.fillStyle = "#fff";
-                ctx.font = "32px Arial";
-                ctx.fillText("Game Over!", 80, canvas.height/2);
+                
+                // Check if break time has expired
+                if (breakTimeExpired || !checkGameAccess()) {
+                    handleBreakExpiration();
+                } else {
+                    ctx.fillStyle = "#fff";
+                    ctx.font = "32px Arial";
+                    ctx.textAlign = "center";
+                    ctx.fillText("Game Over!", canvas.width/2, canvas.height/2);
+                    ctx.font = "16px Arial";
+                    ctx.fillText("Press Enter or click Restart to play again", canvas.width/2, canvas.height/2 + 30);
+                }
                 return;
             }
 
@@ -165,7 +332,36 @@
 
         // Initialize
         updateHighScoreDisplay();
-        resetGame();
+        
+        // Initialize lastKnownMode
+        const initialState = localStorage.getItem('pomodoroTimerState');
+        if (initialState) {
+            try {
+                const state = JSON.parse(initialState);
+                lastKnownMode = state.mode;
+            } catch (e) {
+                console.warn('Failed to parse initial timer state:', e);
+            }
+        }
+
+        // Check access on page load
+        if (checkGameAccess()) {
+            resetGame();
+            startBreakTimerMonitoring();
+        } else {
+            showAccessDenied();
+            // Redirect to pomodoro page after showing message
+            setTimeout(() => {
+                window.location.href = "{{ url_for('todo_routes.pomodoro') }}";
+            }, 3000);
+        }
+
+        // Cleanup when leaving the page
+        window.addEventListener('beforeunload', () => {
+            if (breakTimerMonitor) clearInterval(breakTimerMonitor);
+            if (game) clearInterval(game);
+            if (countdownTimeout) clearTimeout(countdownTimeout);
+        });
         </script>
         <!-- End Snake Game -->
     </div>

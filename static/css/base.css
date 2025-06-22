@@ -738,64 +738,316 @@ td {
     text-align: center;
 }
 
-/* --- Mini Pomodoro Timer Styles --- */
-#mini-pomodoro-timer {
+/* Break Timer Info Display */
+.break-timer-info {
+    text-align: center;
+    margin: 16px 0 24px 0;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #4f8cff 0%, #3358e6 100%);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(79,140,255,0.2);
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#break-time-left {
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+/* --- Popout Pomodoro Timer Styles --- */
+#popout-pomodoro-timer {
     position: fixed;
-    right: 32px;
-    bottom: 32px;
+    right: 20px;
+    bottom: 20px;
     z-index: 1002;
-    background: linear-gradient(135deg, #fff 60%, #f7f7fa 100%);
-    box-shadow: 0 4px 24px rgba(44,62,80,0.13);
-    border-radius: 14px;
-    padding: 16px 22px 14px 22px;
+    background: linear-gradient(135deg, #fff 90%, #f7f7fa 100%);
+    box-shadow: 0 6px 32px rgba(44,62,80,0.15), 0 2px 8px rgba(44,62,80,0.08);
+    border-radius: 16px;
+    font-family: 'Public Sans', Arial, sans-serif;
+    border: 1px solid #e0e0e0;
+    user-select: none;
+    width: 220px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+#popout-pomodoro-timer:hover {
+    box-shadow: 0 8px 40px rgba(44,62,80,0.2), 0 4px 12px rgba(44,62,80,0.12);
+}
+
+#popout-pomodoro-timer.minimized {
+    width: 140px;
+    height: 60px;
+}
+
+.popout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px 6px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    border-radius: 16px 16px 0 0;
+}
+
+.popout-drag-handle {
+    cursor: grab;
+    color: #9e9e9e;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.2s;
+}
+
+.popout-drag-handle:hover {
+    color: #666;
+    background: rgba(0,0,0,0.05);
+}
+
+.popout-drag-handle:active {
+    cursor: grabbing;
+}
+
+.popout-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.popout-control-btn {
+    background: none;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    color: #9e9e9e;
+    transition: all 0.2s;
+}
+
+.popout-control-btn:hover {
+    background: rgba(0,0,0,0.1);
+    color: #666;
+}
+
+#popout-close-btn:hover {
+    background: #ff5252;
+    color: white;
+}
+
+.popout-content {
+    padding: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 120px;
-    min-height: 60px;
-    font-family: 'Public Sans', Arial, sans-serif;
-    transition: box-shadow 0.18s, background 0.18s;
-    border: 1px solid #e0e0e0;
-    user-select: none;
-    cursor: pointer;
+    gap: 12px;
 }
 
-#mini-pomodoro-timer:hover {
-    box-shadow: 0 8px 32px rgba(44,62,80,0.18);
+.popout-progress-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popout-timer-display {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+}
+
+#popout-timer-time {
+    font-size: 16px;
+    font-weight: 700;
+    color: #232526;
+    letter-spacing: 0.5px;
+    line-height: 1;
+}
+
+#popout-timer-mode {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7b1fa2;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.popout-task-info {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.popout-buttons {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+}
+
+.popout-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.popout-btn.primary {
+    background: linear-gradient(135deg, #4f8cff 0%, #3358e6 100%);
+    color: white;
+}
+
+.popout-btn.primary:hover {
+    background: linear-gradient(135deg, #3358e6 0%, #4f8cff 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(79,140,255,0.3);
+}
+
+.popout-btn.secondary {
+    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+    color: white;
+}
+
+.popout-btn.secondary:hover {
+    background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255,152,0,0.3);
+}
+
+.popout-btn.danger {
+    background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
+    color: white;
+}
+
+.popout-btn.danger:hover {
+    background: linear-gradient(135deg, #f09819 0%, #ff5858 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255,88,88,0.3);
+}
+
+.popout-btn.expand {
+    background: linear-gradient(135deg, #607d8b 0%, #90a4ae 100%);
+    color: white;
+}
+
+.popout-btn.expand:hover {
+    background: linear-gradient(135deg, #90a4ae 0%, #607d8b 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(96,125,139,0.3);
+}
+
+.popout-btn.games {
+    background: linear-gradient(135deg, #43e97b 0%, #4f8cff 100%);
+    color: white;
+}
+
+.popout-btn.games:hover:not(.disabled) {
+    background: linear-gradient(135deg, #4f8cff 0%, #43e97b 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(67,233,123,0.3);
+}
+
+.popout-btn.games.disabled {
+    background: linear-gradient(135deg, #bdbdbd 0%, #757575 100%);
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.popout-cycle-info {
+    font-size: 10px;
+    color: #9e9e9e;
+    text-align: center;
+    font-weight: 500;
+}
+
+.popout-minimized {
+    padding: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: background 0.2s;
+}
+
+.popout-minimized:hover {
     background: linear-gradient(135deg, #f7f7fa 80%, #fff 100%);
 }
 
-#mini-pomodoro-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #7b1fa2;
-    margin-bottom: 2px;
-    letter-spacing: 0.5px;
-    text-align: center;
-}
-
-#mini-pomodoro-time {
-    font-size: 1.5rem;
+#popout-mini-time {
+    font-size: 16px;
     font-weight: 700;
     color: #232526;
-    letter-spacing: 1px;
-    text-align: center;
-    margin-bottom: 0;
+    letter-spacing: 0.5px;
+    line-height: 1;
 }
 
+#popout-mini-mode {
+    font-size: 10px;
+    font-weight: 600;
+    color: #7b1fa2;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Progress ring animation */
+#popout-progress-bar {
+    transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+}
+
+/* Mobile responsiveness */
 @media (max-width: 600px) {
-    #mini-pomodoro-timer {
+    #popout-pomodoro-timer {
         right: 10px;
         bottom: 10px;
-        padding: 10px 14px 10px 14px;
-        min-width: 80px;
-        min-height: 40px;
+        width: 200px;
     }
-    #mini-pomodoro-title {
-        font-size: 0.95rem;
+    
+    #popout-pomodoro-timer.minimized {
+        width: 120px;
+        height: 50px;
     }
-    #mini-pomodoro-time {
-        font-size: 1.1rem;
+    
+    .popout-content {
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .popout-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
     }
 }
 
