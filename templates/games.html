@@ -265,7 +265,8 @@
             ctx.fillRect(food.x, food.y, box, box);
             ctx.fillStyle = "#fff";
             ctx.font = "18px Arial";
-            ctx.fillText("Score: " + score, 10, 24);
+            ctx.textAlign = "left";
+            ctx.fillText("Score: " + score, 20, 40);
 
             // Snake movement
             let headX = snake[0].x;
