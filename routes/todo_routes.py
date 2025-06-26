@@ -98,3 +98,9 @@ def pomodoro_games():
     if 'user' not in session:
         return redirect(url_for('login'))
     return render_template('games.html')
+
+@todo_routes.route('/chatbot')
+def chatbot():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    return render_template('chatbot.html')
