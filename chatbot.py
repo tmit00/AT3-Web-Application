@@ -1,6 +1,7 @@
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
+import re
 
 # Load environment variables
 load_dotenv()
@@ -19,6 +20,45 @@ class Chatbot:
         # Initialize chat history
         self.chat_history = []
     
+    def strip_markdown(self, text):
+        """
+        Remove markdown formatting from text
+        
+        Args:
+            text (str): Text with markdown formatting
+            
+        Returns:
+            str: Clean text without markdown
+        """
+        # Remove bold formatting (**text** or __text__)
+        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+        text = re.sub(r'__(.*?)__', r'\1', text)
+        
+        # Remove italic formatting (*text* or _text_)
+        text = re.sub(r'\*(.*?)\*', r'\1', text)
+        text = re.sub(r'_(.*?)_', r'\1', text)
+        
+        # Remove code formatting (`text`)
+        text = re.sub(r'`(.*?)`', r'\1', text)
+        
+        # Remove strikethrough formatting (~~text~~)
+        text = re.sub(r'~~(.*?)~~', r'\1', text)
+        
+        # Remove headers (# ## ### etc.)
+        text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+        
+        # Remove list markers (- * +)
+        text = re.sub(r'^[\s]*[-*+]\s+', '', text, flags=re.MULTILINE)
+        
+        # Remove numbered list markers (1. 2. etc.)
+        text = re.sub(r'^[\s]*\d+\.\s+', '', text, flags=re.MULTILINE)
+        
+        # Clean up extra whitespace
+        text = re.sub(r'\n\s*\n', '\n\n', text)
+        text = text.strip()
+        
+        return text
+    
     def send_message(self, message):
         """
         Send a message to the chatbot and get a response
@@ -36,10 +76,13 @@ class Chatbot:
             # Generate response
             response = self.model.generate_content(message)
             
-            # Add assistant response to history
-            self.chat_history.append({"role": "assistant", "parts": [response.text]})
+            # Clean the response by removing markdown formatting
+            clean_response = self.strip_markdown(response.text)
             
-            return response.text
+            # Add assistant response to history
+            self.chat_history.append({"role": "assistant", "parts": [clean_response]})
+            
+            return clean_response
             
         except Exception as e:
             error_message = f"Sorry, I encountered an error: {str(e)}"
