@@ -17,8 +17,8 @@ class Chatbot:
         # Initialize the model
         self.model = genai.GenerativeModel('gemini-2.0-flash')
         
-        # Initialize chat history
-        self.chat_history = []
+        # Initialize conversation history
+        self.conversation_history = []
     
     def strip_markdown(self, text):
         """
@@ -70,17 +70,20 @@ class Chatbot:
             str: The chatbot's response
         """
         try:
-            # Add user message to history
-            self.chat_history.append({"role": "user", "parts": [message]})
+            # Add user message to conversation history
+            self.conversation_history.append({"role": "user", "parts": [message]})
             
-            # Generate response
-            response = self.model.generate_content(message)
+            # Create the full conversation context
+            conversation = self.conversation_history.copy()
+            
+            # Generate response with full conversation context
+            response = self.model.generate_content(conversation)
             
             # Clean the response by removing markdown formatting
             clean_response = self.strip_markdown(response.text)
             
-            # Add assistant response to history
-            self.chat_history.append({"role": "assistant", "parts": [clean_response]})
+            # Add assistant response to conversation history
+            self.conversation_history.append({"role": "assistant", "parts": [clean_response]})
             
             return clean_response
             
@@ -89,12 +92,12 @@ class Chatbot:
             return error_message
     
     def clear_history(self):
-        """Clear the chat history"""
-        self.chat_history = []
+        """Clear the conversation history"""
+        self.conversation_history = []
     
     def get_history(self):
-        """Get the current chat history"""
-        return self.chat_history
+        """Get the current conversation history"""
+        return self.conversation_history
 
 # Create a global chatbot instance
 chatbot_instance = Chatbot()
