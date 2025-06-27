@@ -1,7 +1,13 @@
-from flask import Flask, render_template, url_for, redirect, request, Blueprint, session
+from flask import Flask, render_template, url_for, redirect, request, Blueprint, session, jsonify
 from data import db, Task
 from task import user_create_task, user_mark_complete, user_delete_task
 from datetime import datetime
+import sys
+import os
+
+# Add the parent directory to the path to import chatbot
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from chatbot import chatbot_instance
 
 todo_routes = Blueprint('todo_routes', __name__)
 
@@ -104,3 +110,42 @@ def chatbot():
     if 'user' not in session:
         return redirect(url_for('login'))
     return render_template('chatbot.html')
+
+@todo_routes.route('/chatbot/send_message', methods=['POST'])
+def send_chatbot_message():
+    if 'user' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+    
+    data = request.get_json()
+    message = data.get('message', '').strip()
+    
+    if not message:
+        return jsonify({'error': 'Message cannot be empty'}), 400
+    
+    try:
+        response = chatbot_instance.send_message(message)
+        return jsonify({'response': response})
+    except Exception as e:
+        return jsonify({'error': f'Error processing message: {str(e)}'}), 500
+
+@todo_routes.route('/chatbot/clear_history', methods=['POST'])
+def clear_chatbot_history():
+    if 'user' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+    
+    try:
+        chatbot_instance.clear_history()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': f'Error clearing history: {str(e)}'}), 500
+
+@todo_routes.route('/chatbot/history', methods=['GET'])
+def get_chatbot_history():
+    if 'user' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+    
+    try:
+        history = chatbot_instance.get_history()
+        return jsonify({'history': history})
+    except Exception as e:
+        return jsonify({'error': f'Error getting history: {str(e)}'}), 500
