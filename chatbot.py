@@ -116,18 +116,7 @@ class Chatbot:
         """
         message_lower = message.lower()
         
-        # Enhanced create task patterns
-        create_patterns = [
-            r'create\s+(?:a\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
-            r'add\s+(?:a\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
-            r'new\s+task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
-            r'task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
-            r'remind\s+me\s+to\s+([^,]+)',
-            r'i\s+need\s+to\s+([^,]+)',
-            r'remember\s+to\s+([^,]+)'
-        ]
-        
-        # Enhanced delete task patterns
+        # Enhanced delete task patterns (check these FIRST to avoid conflicts)
         delete_patterns = [
             r'delete\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
             r'remove\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
@@ -159,7 +148,47 @@ class Chatbot:
             r'undo\s+task\s+["\']?([^"\']+)["\']?'
         ]
         
-        # Check for create task
+        # Enhanced create task patterns (check these LAST)
+        create_patterns = [
+            r'create\s+(?:a\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'add\s+(?:a\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'new\s+task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'remind\s+me\s+to\s+([^,]+)',
+            r'i\s+need\s+to\s+([^,]+)',
+            r'remember\s+to\s+([^,]+)'
+        ]
+        
+        # Check for delete task FIRST (to avoid conflicts)
+        for pattern in delete_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                identifier = match.group(1).strip()
+                return {
+                    'action': 'delete',
+                    'identifier': identifier
+                }
+        
+        # Check for complete task
+        for pattern in complete_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                identifier = match.group(1).strip()
+                return {
+                    'action': 'complete',
+                    'identifier': identifier
+                }
+        
+        # Check for incomplete task
+        for pattern in incomplete_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                identifier = match.group(1).strip()
+                return {
+                    'action': 'incomplete',
+                    'identifier': identifier
+                }
+        
+        # Check for create task LAST (most general pattern)
         for pattern in create_patterns:
             match = re.search(pattern, message_lower)
             if match:
@@ -212,34 +241,6 @@ class Chatbot:
                     'description': description,
                     'date': date_obj,
                     'priority': priority
-                }
-        
-        # Check for other actions
-        for pattern in delete_patterns:
-            match = re.search(pattern, message_lower)
-            if match:
-                identifier = match.group(1).strip()
-                return {
-                    'action': 'delete',
-                    'identifier': identifier
-                }
-        
-        for pattern in complete_patterns:
-            match = re.search(pattern, message_lower)
-            if match:
-                identifier = match.group(1).strip()
-                return {
-                    'action': 'complete',
-                    'identifier': identifier
-                }
-        
-        for pattern in incomplete_patterns:
-            match = re.search(pattern, message_lower)
-            if match:
-                identifier = match.group(1).strip()
-                return {
-                    'action': 'incomplete',
-                    'identifier': identifier
                 }
         
         return None
