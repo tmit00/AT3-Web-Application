@@ -64,13 +64,21 @@
                     {{ task.date }}</td>
                 <td>
                     {% if not task.is_complete %}
-                        <a href="{{ url_for('todo_routes.confirm_complete', task_id=task.id) }}" class="mark-complete-button">Mark Complete</a>
+                        <form action="{{ url_for('todo_routes.mark_complete', task_id=task.id) }}" method="post" style="display: inline;">
+                            <button type="submit" class="mark-complete-button" onclick="return confirm('Mark task as complete?')">Mark Complete</button>
+                        </form>
                     {% else %}
-                        <a href="{{ url_for('todo_routes.confirm_mark_incomplete', task_id=task.id) }}" class="mark-incomplete-button">Mark Incomplete</a>
+                        <form action="{{ url_for('todo_routes.mark_incomplete', task_id=task.id) }}" method="post" style="display: inline;">
+                            <button type="submit" class="mark-incomplete-button" onclick="return confirm('Mark task as incomplete?')">Mark Incomplete</button>
+                        </form>
                     {% endif %}
                 </td>
 
-                <td><a href="{{ url_for('todo_routes.confirm_delete', task_id=task.id) }}" class="delete-task-button">Delete Task</a></td>
+                <td>
+                    <form action="{{ url_for('todo_routes.delete', task_id=task.id) }}" method="post" style="display: inline;">
+                        <button type="submit" class="delete-task-button" onclick="return confirm('Are you sure you want to delete this task?')">Delete Task</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

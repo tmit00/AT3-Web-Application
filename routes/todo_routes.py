@@ -27,65 +27,36 @@ def create_task():
     else: 
         return render_template('create_task.html')
 
-# Confirm mark complete
-@todo_routes.route('/confirm_complete/<int:task_id>')
-def confirm_complete(task_id):
-    if 'user' not in session:
-        return redirect(url_for('login'))
-    task = Task.query.get(task_id)
-    if not task or task.user_email != session['user']['email']:
-        return redirect(url_for('dashboard'))
-    error = None
-    if task.is_complete:
-        error = "This task is already marked as complete."
-    return render_template('mark_complete.html', task=task, error=error)
-
-# Actually mark as complete
+# Mark as complete (instant action)
 @todo_routes.route('/mark_complete/<int:task_id>', methods=['POST'])
 def mark_complete(task_id):
     if 'user' not in session:
         return redirect(url_for('login'))
-    user_mark_complete(task_id, True)
-    return redirect(url_for('dashboard'))
-
-@todo_routes.route('/confirm_mark_incomplete/<int:task_id>')
-def confirm_mark_incomplete(task_id):
-    if 'user' not in session:
-        return redirect(url_for('login'))
     task = Task.query.get(task_id)
     if not task or task.user_email != session['user']['email']:
         return redirect(url_for('dashboard'))
-
-    error = None
+    
     if not task.is_complete:
-        error = "This task is not marked as complete."
+        user_mark_complete(task_id, True)
+    
+    return redirect(url_for('dashboard'))
 
-    return render_template('mark_incomplete.html', task=task, error=error)
-
-
-
-# Mark incomplete
+# Mark incomplete (instant action)
 @todo_routes.route('/mark_incomplete/<int:task_id>', methods=['POST'])
 def mark_incomplete(task_id):
     if 'user' not in session:
         return redirect(url_for('login'))
     task = Task.query.get(task_id)
-    if task and task.is_complete and task.user_email == session['user']['email']:
-        task.is_complete = False
-        db.session.commit()
-    return redirect(url_for('dashboard'))
-
-# Confirm delete
-@todo_routes.route('/confirm_delete/<int:task_id>')
-def confirm_delete(task_id):
-    if 'user' not in session:
-        return redirect(url_for('login'))
-    task = Task.query.get(task_id)
     if not task or task.user_email != session['user']['email']:
         return redirect(url_for('dashboard'))
-    return render_template('delete_task.html', task=task)
+    
+    if task.is_complete:
+        task.is_complete = False
+        db.session.commit()
+    
+    return redirect(url_for('dashboard'))
 
-# Actually delete
+# Delete task (instant action)
 @todo_routes.route('/delete/<int:task_id>', methods=['POST'])
 def delete(task_id):
     if 'user' not in session:
