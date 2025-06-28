@@ -2,6 +2,9 @@ import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 import re
+from datetime import datetime
+from data import db, Task
+from flask import session
 
 # Load environment variables
 load_dotenv()
@@ -19,6 +22,184 @@ class Chatbot:
         
         # Initialize conversation history
         self.conversation_history = []
+    
+    def get_user_email(self):
+        """Get the current user's email from session"""
+        return session.get('user', {}).get('email', 'anonymous@example.com')
+    
+    def parse_task_action(self, message):
+        """
+        Parse user message to detect task-related actions
+        
+        Args:
+            message (str): User's message
+            
+        Returns:
+            dict: Action details or None if no action detected
+        """
+        message_lower = message.lower()
+        
+        # Create task patterns
+        create_patterns = [
+            r'create\s+(?:a\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'add\s+(?:a\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'new\s+task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'task\s+(?:called\s+)?["\']?([^"\']+)["\']?'
+        ]
+        
+        # Delete task patterns
+        delete_patterns = [
+            r'delete\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'remove\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'delete\s+task\s+(\d+)',
+            r'remove\s+task\s+(\d+)'
+        ]
+        
+        # Complete task patterns
+        complete_patterns = [
+            r'complete\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'mark\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?\s+as\s+complete',
+            r'finish\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'complete\s+task\s+(\d+)',
+            r'mark\s+task\s+(\d+)\s+as\s+complete'
+        ]
+        
+        # Incomplete task patterns
+        incomplete_patterns = [
+            r'uncomplete\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'mark\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?\s+as\s+incomplete',
+            r'unmark\s+(?:the\s+)?task\s+(?:called\s+)?["\']?([^"\']+)["\']?',
+            r'uncomplete\s+task\s+(\d+)',
+            r'mark\s+task\s+(\d+)\s+as\s+incomplete'
+        ]
+        
+        # Check for create task
+        for pattern in create_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                title = match.group(1).strip()
+                # Extract description and date if provided
+                description = None
+                date_obj = None
+                
+                # Look for description after "description:" or "desc:"
+                desc_match = re.search(r'description[:\s]+([^,]+)', message, re.IGNORECASE)
+                if desc_match:
+                    description = desc_match.group(1).strip()
+                
+                # Look for date patterns
+                date_match = re.search(r'date[:\s]+(\d{4}-\d{2}-\d{2})', message)
+                if date_match:
+                    try:
+                        date_obj = datetime.strptime(date_match.group(1), '%Y-%m-%d').date()
+                    except:
+                        pass
+                
+                return {
+                    'action': 'create',
+                    'title': title,
+                    'description': description,
+                    'date': date_obj
+                }
+        
+        # Check for delete task
+        for pattern in delete_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                identifier = match.group(1).strip()
+                return {
+                    'action': 'delete',
+                    'identifier': identifier
+                }
+        
+        # Check for complete task
+        for pattern in complete_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                identifier = match.group(1).strip()
+                return {
+                    'action': 'complete',
+                    'identifier': identifier
+                }
+        
+        # Check for incomplete task
+        for pattern in incomplete_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                identifier = match.group(1).strip()
+                return {
+                    'action': 'incomplete',
+                    'identifier': identifier
+                }
+        
+        return None
+    
+    def execute_task_action(self, action_data):
+        """
+        Execute the parsed task action
+        
+        Args:
+            action_data (dict): Action details from parse_task_action
+            
+        Returns:
+            str: Result message
+        """
+        user_email = self.get_user_email()
+        
+        if action_data['action'] == 'create':
+            try:
+                from task import user_create_task
+                task = user_create_task(
+                    action_data['title'],
+                    action_data['description'],
+                    action_data['date']
+                )
+                return f"✅ Task '{action_data['title']}' has been created successfully!"
+            except Exception as e:
+                return f"❌ Failed to create task: {str(e)}"
+        
+        elif action_data['action'] in ['delete', 'complete', 'incomplete']:
+            identifier = action_data['identifier']
+            
+            # Try to find task by ID first, then by title
+            task = None
+            if identifier.isdigit():
+                task = Task.query.get(int(identifier))
+            else:
+                task = Task.query.filter_by(title=identifier, user_email=user_email).first()
+            
+            if not task:
+                return f"❌ Task '{identifier}' not found."
+            
+            if task.user_email != user_email:
+                return "❌ You don't have permission to modify this task."
+            
+            try:
+                if action_data['action'] == 'delete':
+                    from task import user_delete_task
+                    user_delete_task(task.id)
+                    return f"✅ Task '{task.title}' has been deleted successfully!"
+                
+                elif action_data['action'] == 'complete':
+                    from task import user_mark_complete
+                    user_mark_complete(task.id, True)
+                    return f"✅ Task '{task.title}' has been marked as complete!"
+                
+                elif action_data['action'] == 'incomplete':
+                    from task import user_mark_complete
+                    user_mark_complete(task.id, False)
+                    return f"✅ Task '{task.title}' has been marked as incomplete!"
+                    
+            except Exception as e:
+                return f"❌ Failed to {action_data['action']} task: {str(e)}"
+        
+        return "❌ Unknown action."
+    
+    def get_user_tasks(self):
+        """Get all tasks for the current user"""
+        user_email = self.get_user_email()
+        tasks = Task.query.filter_by(user_email=user_email).all()
+        return tasks
     
     def strip_markdown(self, text):
         """
@@ -95,6 +276,38 @@ class Chatbot:
             dict: Response with truncated text, truncation status, and full text
         """
         try:
+            # First, check if this is a task action
+            action_data = self.parse_task_action(message)
+            
+            if action_data:
+                # Execute the action and return the result
+                result = self.execute_task_action(action_data)
+                return {
+                    'response': result,
+                    'is_truncated': False,
+                    'full_response': result
+                }
+            
+            # If not an action, check if user is asking about their tasks
+            if any(word in message.lower() for word in ['my tasks', 'show tasks', 'list tasks', 'what tasks', 'view tasks']):
+                tasks = self.get_user_tasks()
+                if not tasks:
+                    response = "You don't have any tasks yet. You can create one by saying 'create task [task name]'."
+                else:
+                    task_list = []
+                    for task in tasks:
+                        status = "✅" if task.is_complete else "⏳"
+                        date_str = f" (Due: {task.date})" if task.date else ""
+                        task_list.append(f"{status} {task.title}{date_str}")
+                    
+                    response = f"Here are your tasks:\n" + "\n".join(task_list)
+                
+                return {
+                    'response': response,
+                    'is_truncated': False,
+                    'full_response': response
+                }
+            
             # Add user message to conversation history
             self.conversation_history.append({"role": "user", "parts": [message]})
             
