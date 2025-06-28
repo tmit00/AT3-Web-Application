@@ -149,3 +149,14 @@ def get_chatbot_history():
         return jsonify({'history': history})
     except Exception as e:
         return jsonify({'error': f'Error getting history: {str(e)}'}), 500
+
+@todo_routes.route('/chatbot/metadata', methods=['GET'])
+def get_chatbot_metadata():
+    if 'user' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+    
+    try:
+        metadata = chatbot_instance.get_metadata()
+        return jsonify(metadata)
+    except Exception as e:
+        return jsonify({'error': f'Error getting metadata: {str(e)}'}), 500
