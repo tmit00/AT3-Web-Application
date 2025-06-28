@@ -1,48 +1,86 @@
 {% extends "base.html" %}
 
-{% block title %}Calendar{% endblock %}
+{% block title %}Calendar - FocusFlow{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="../static/css/calendar.css">
 {% endblock %}
 
 {% block content %}
-<div class="card"> 
-    <div class="card-body">
-        <div class="card-header d-flex justify-content-between border-0">
-            <a href="{{ url_for('calendar_routes.calendar_server', year=prev_year, month=prev_month) }}" class="btn btn-tertiary text-center">&laquo;</a>
-            <div class="d-flex align-items-center ">{{month_name}} {{year}}</div>
-            <a href="{{ url_for('calendar_routes.calendar_server', year=next_year, month=next_month) }}" class="btn btn-tertiary text-center">&raquo;</a>
+<div class="calendar-container">
+    <!-- Calendar Header -->
+    <div class="calendar-header">
+        <div class="calendar-title">
+            <h1>Calendar</h1>
+            <p class="calendar-subtitle">Manage your tasks and deadlines</p>
         </div>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
-                        <th>{{ day }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for week in calendar %}
-                <tr>
-                    {% for day in week %}
-                    <td>
+        <div class="calendar-navigation">
+            <a href="{{ url_for('calendar_routes.calendar_server', year=prev_year, month=prev_month) }}" class="nav-btn prev-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15,18 9,12 15,6"></polyline>
+                </svg>
+            </a>
+            <div class="current-month">
+                <span class="month-year">{{month_name}} {{year}}</span>
+            </div>
+            <a href="{{ url_for('calendar_routes.calendar_server', year=next_year, month=next_month) }}" class="nav-btn next-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9,18 15,12 9,6"></polyline>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid">
+        <div class="calendar-weekdays">
+            {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                <div class="weekday">{{ day[:3] }}</div>
+            {% endfor %}
+        </div>
+        
+        <div class="calendar-days">
+            {% for week in calendar %}
+                {% for day in week %}
+                    <div class="calendar-day {% if day == 0 %}empty{% endif %}">
                         {% if day != 0 %}
                             <a href="{{ url_for('calendar_routes.view_day', year=year, month=month, day=day) }}" class="day-link">
-                                <div>{{ day }}</div>
+                                <div class="day-number">{{ day }}</div>
                                 {% if overdue_tasks_by_day[day] %}
-                                    <div class="task-count text-danger">{{ overdue_tasks_by_day[day] }} Task{{ 's' if overdue_tasks_by_day[day] > 1 else '' }} Overdue</div>
+                                    <div class="task-indicator overdue">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12,6 12,12 16,14"></polyline>
+                                        </svg>
+                                        <span>{{ overdue_tasks_by_day[day] }}</span>
+                                    </div>
                                 {% elif tasks_by_day[day] %}
-                                    <div class="task-count">{{ tasks_by_day[day] }} Task{{ 's' if tasks_by_day[day] > 1 else '' }} Due</div>
+                                    <div class="task-indicator">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12,6 12,12 16,14"></polyline>
+                                        </svg>
+                                        <span>{{ tasks_by_day[day] }}</span>
+                                    </div>
                                 {% endif %}
                             </a>
                         {% endif %}
-                    </td>
-                    {% endfor %}
-                </tr>
+                    </div>
                 {% endfor %}
-            </tbody>
-        </table>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Calendar Legend -->
+    <div class="calendar-legend">
+        <div class="legend-item">
+            <div class="legend-indicator"></div>
+            <span>Tasks due</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-indicator overdue"></div>
+            <span>Overdue tasks</span>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -74,4 +74,14 @@ def view_day(year, month, day):
     user_email = session['user']['email']
     tasks = Task.query.filter_by(date=date_obj, user_email=user_email).all()
 
-    return render_template("day_view.html", year=year, month=month, day=day, tasks=tasks)
+    # Get month name and day name
+    month_name = calendar.month_name[month]
+    day_name = calendar.day_name[date_obj.weekday()]
+
+    return render_template("day_view.html", 
+                         year=year, 
+                         month=month, 
+                         day=day, 
+                         tasks=tasks,
+                         month_name=month_name,
+                         day_name=day_name)

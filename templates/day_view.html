@@ -1,38 +1,144 @@
 {% extends "base.html" %}
 
-{% block title %}Tasks for {{ day }}/{{ month }}/{{ year }}{% endblock %}
+{% block title %}Day View - {{ day_name }}, {{ month_name }} {{ day }} - FocusFlow{% endblock %}
 
 {% block content %}
 <div class="day-view-container">
-    <div class="day-view-card">
-        <div class="day-view-header">
-            <span class="day-view-date">
-                <i class="fa fa-calendar"></i>
-                {{ day }}/{{ month }}/{{ year }}
-            </span>
-            <h2>Tasks for this day</h2>
+    <!-- Day View Header -->
+    <div class="day-view-header">
+        <div class="day-view-title">
+            <h1>Day View</h1>
+            <p class="day-view-subtitle">Tasks and activities for this day</p>
         </div>
-        <div class="day-view-body">
-            {% if tasks %}
-                <ul class="day-view-task-list">
-                    {% for task in tasks %}
-                        <li class="day-view-task-item">
-                            <span class="day-view-task-title">{{ task.title }}</span>
-                            {% if task.is_complete %}
-                                <span class="day-view-status complete-badge">Complete</span>
-                            {% else %}
-                                <span class="day-view-status incomplete-badge">Incomplete</span>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <div class="day-view-empty">
-                    <i class="fa fa-check-circle"></i>
-                    <p>No tasks for this day.</p>
+        <div class="day-view-date-card">
+            <div class="date-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <div class="date-content">
+                <div class="date-number">{{ day }}</div>
+                <div class="date-details">
+                    <div class="month-year">{{ month_name }} {{ year }}</div>
+                    <div class="day-name">{{ day_name }}</div>
                 </div>
-            {% endif %}
+            </div>
         </div>
+    </div>
+
+    <!-- Tasks Section -->
+    <div class="day-view-tasks-section">
+        <div class="section-header">
+            <h2>Tasks for {{ day_name }}, {{ month_name }} {{ day }}</h2>
+            <div class="task-summary">
+                {% if tasks %}
+                    <span class="task-count">{{ tasks|length }} task{{ 's' if tasks|length != 1 else '' }}</span>
+                {% else %}
+                    <span class="task-count">No tasks</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if tasks %}
+        <div class="tasks-list">
+            {% for task in tasks %}
+            <div class="task-card">
+                <div class="task-content">
+                    <div class="task-info">
+                        <h3 class="task-title">{{ task.title }}</h3>
+                        {% if task.description %}
+                        <p class="task-description">{{ task.description }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="task-status">
+                        {% if task.is_complete %}
+                            <span class="status-badge complete">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20,6 9,17 4,12"></polyline>
+                                </svg>
+                                Complete
+                            </span>
+                        {% else %}
+                            <span class="status-badge incomplete">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12,6 12,12 16,14"></polyline>
+                                </svg>
+                                Pending
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="task-actions">
+                    {% if not task.is_complete %}
+                        <form action="{{ url_for('todo_routes.mark_complete', task_id=task.id) }}" method="post" style="display: inline;">
+                            <button type="submit" class="action-btn complete-btn" onclick="return confirm('Mark task as complete?')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20,6 9,17 4,12"></polyline>
+                                </svg>
+                                Complete
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('todo_routes.mark_incomplete', task_id=task.id) }}" method="post" style="display: inline;">
+                            <button type="submit" class="action-btn incomplete-btn" onclick="return confirm('Mark task as incomplete?')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                Incomplete
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <form action="{{ url_for('todo_routes.delete', task_id=task.id) }}" method="post" style="display: inline;">
+                        <button type="submit" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this task?')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3,6 5,6 21,6"></polyline>
+                                <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                            </svg>
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 12l2 2 4-4"></path>
+                    <path d="M21 12c-1 0-2-1-2-2s1-2 2-2 2 1 2 2-1 2-2 2z"></path>
+                    <path d="M3 12c1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2z"></path>
+                    <path d="M12 3c0 1-1 2-2 2s-2-1-2-2 1-2 2-2 2 1 2 2z"></path>
+                    <path d="M12 21c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2z"></path>
+                </svg>
+            </div>
+            <h3>No tasks scheduled</h3>
+            <p>You have a free day! No tasks are scheduled for {{ day_name }}, {{ month_name }} {{ day }}.</p>
+            <a href="{{ url_for('todo_routes.create_task') }}" class="empty-state-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add a Task
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Back to Calendar -->
+    <div class="back-to-calendar">
+        <a href="{{ url_for('calendar_routes.calendar_server') }}" class="back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15,18 9,12 15,6"></polyline>
+            </svg>
+            Back to Calendar
+        </a>
     </div>
 </div>
 {% endblock %}
