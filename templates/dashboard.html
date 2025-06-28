@@ -3,86 +3,153 @@
 {% extends "base.html" %}
 
 <!-- Block for the title of the page -->
-{% block title %}Task List{% endblock %}
+{% block title %}Dashboard - FocusFlow{% endblock %}
 
 <!-- Block for the main content of the page -->
 {% block content %} 
 
-<div class="container">
-    <!-- User Info and Stats -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-        <div>
-            <strong>Logged in as:</strong> {{ user.email }}
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1>Dashboard</h1>
+            <p class="dashboard-subtitle">Welcome back, {{ user.email.split('@')[0] }}</p>
         </div>
-        <div>
-            <span style="font-weight:600; color:#43e97b;">
-                You completed {{ pomodoros_today }} Pomodoros today!
-            </span>
-            <span style="margin-left:18px; color:#7b1fa2;">
-                Total focus time: {{ focus_minutes_today }} minutes
-            </span>
+        <div class="dashboard-actions">
+            <a href="{{ url_for('todo_routes.create_task') }}" class="add-task-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Task
+            </a>
         </div>
     </div>
 
-    <!-- Main heading for the Tasks page -->
-    <h1>Tasks</h1>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Account</div>
+                <div class="stat-value">{{ user.email }}</div>
+            </div>
+        </div>
 
-    <!-- Button group for task actions -->
-    <div class="button-group">
-        <!-- Link to the "Add Task" page -->
-        <a href="{{ url_for('todo_routes.create_task') }}" class="add-task-button">Add Task</a>
-        
+        <div class="stat-card">
+            <div class="stat-icon pomodoro-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12,6 12,12 16,14"></polyline>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Pomodoros Today</div>
+                <div class="stat-value">{{ pomodoros_today }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon focus-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Focus Time</div>
+                <div class="stat-value">{{ focus_minutes_today }} min</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Table to display the list of tasks -->
-    <table>
-        <thead>
-            <!-- Table header row defining the columns: Title, Description, Status, Due Date -->
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Due Date</th>
-                <th>Update Status</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Loop through the tasks list passed from the backend and generate a row for each task -->
-            {% for task in tasks %}
-            <tr>
-                <!-- Display task title -->
-                <td>{{ task.title }}</td>
-                <!-- Display task description -->
-                <td>{{ task.description }}</td>
-                <!-- Display task status: Complete or Incomplete -->
-                <td class="{{ 'complete' if task.is_complete else 'incomplete' }}">
-                    {{ 'Complete' if task.is_complete else 'Incomplete' }}
-                </td>
-                <!-- Display task date -->
-                <td class="{% if task.is_overdue %}overdue{% else %}not-overdue{% endif %}">
-                    {{ task.date }}</td>
-                <td>
-                    {% if not task.is_complete %}
-                        <form action="{{ url_for('todo_routes.mark_complete', task_id=task.id) }}" method="post" style="display: inline;">
-                            <button type="submit" class="mark-complete-button" onclick="return confirm('Mark task as complete?')">Mark Complete</button>
-                        </form>
-                    {% else %}
-                        <form action="{{ url_for('todo_routes.mark_incomplete', task_id=task.id) }}" method="post" style="display: inline;">
-                            <button type="submit" class="mark-incomplete-button" onclick="return confirm('Mark task as incomplete?')">Mark Incomplete</button>
-                        </form>
-                    {% endif %}
-                </td>
+    <!-- Tasks Section -->
+    <div class="tasks-section">
+        <div class="section-header">
+            <h2>Your Tasks</h2>
+            <div class="task-count">{{ tasks|length }} task{{ 's' if tasks|length != 1 else '' }}</div>
+        </div>
 
-                <td>
-                    <form action="{{ url_for('todo_routes.delete', task_id=task.id) }}" method="post" style="display: inline;">
-                        <button type="submit" class="delete-task-button" onclick="return confirm('Are you sure you want to delete this task?')">Delete Task</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        {% if tasks %}
+        <div class="tasks-table-container">
+            <table class="tasks-table">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td class="task-title">{{ task.title }}</td>
+                        <td class="task-description">{{ task.description }}</td>
+                        <td>
+                            <span class="status-badge {{ 'complete' if task.is_complete else 'incomplete' }}">
+                                {{ 'Complete' if task.is_complete else 'Incomplete' }}
+                            </span>
+                        </td>
+                        <td class="due-date {{ 'overdue' if task.is_overdue else 'not-overdue' }}">
+                            {{ task.date }}
+                        </td>
+                        <td class="task-actions">
+                            {% if not task.is_complete %}
+                                <form action="{{ url_for('todo_routes.mark_complete', task_id=task.id) }}" method="post" style="display: inline;">
+                                    <button type="submit" class="action-btn complete-btn" onclick="return confirm('Mark task as complete?')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="20,6 9,17 4,12"></polyline>
+                                        </svg>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form action="{{ url_for('todo_routes.mark_incomplete', task_id=task.id) }}" method="post" style="display: inline;">
+                                    <button type="submit" class="action-btn incomplete-btn" onclick="return confirm('Mark task as incomplete?')">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </form>
+                            {% endif %}
+                            
+                            <form action="{{ url_for('todo_routes.delete', task_id=task.id) }}" method="post" style="display: inline;">
+                                <button type="submit" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this task?')">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3,6 5,6 21,6"></polyline>
+                                        <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10,9 9,9 8,9"></polyline>
+                </svg>
+            </div>
+            <h3>No tasks yet</h3>
+            <p>Get started by creating your first task</p>
+            <a href="{{ url_for('todo_routes.create_task') }}" class="empty-state-btn">Create Task</a>
+        </div>
+        {% endif %}
+    </div>
 </div>
 
 {% endblock %}
