@@ -123,8 +123,8 @@ def send_chatbot_message():
         return jsonify({'error': 'Message cannot be empty'}), 400
     
     try:
-        response = chatbot_instance.send_message(message)
-        return jsonify({'response': response})
+        response_data = chatbot_instance.send_message(message)
+        return jsonify(response_data)
     except Exception as e:
         return jsonify({'error': f'Error processing message: {str(e)}'}), 500
 
