@@ -1,46 +1,61 @@
 {% set hide_mini_timer = True %}
 {% extends "base.html" %}
 
-{% block title %}Pomodoro Timer{% endblock %}
+{% block title %}FocusFlow - Pomodoro Timer{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pomodoro.css') }}">
+
 <div class="pomodoro-container">
     <h1>Pomodoro Timer</h1>
+    
     <div class="pomodoro-center-column">
         <div class="pomodoro-timer-ring-container">
             <svg id="progress-ring" width="170" height="170">
+                <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
                 <circle
                     id="progress-ring-bg"
                     cx="85" cy="85" r="75"
-                    stroke="#f0f0f0"
+                    stroke="#e2e8f0"
                     stroke-width="12"
                     fill="none"
                 />
                 <circle
                     id="progress-ring-bar"
                     cx="85" cy="85" r="75"
-                    stroke="#43e97b"
+                    stroke="url(#progressGradient)"
                     stroke-width="12"
                     fill="none"
                     stroke-linecap="round"
-                    style="transition: stroke-dashoffset 0.5s;"
+                    style="transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);"
                 />
             </svg>
             <div id="timer" class="pomodoro-timer-display"></div>
         </div>
     </div>
-    <div id="session-label" class="pomodoro-session-label">Work</div>
-    <div style="margin: 18px 0 10px 0; text-align: center;">
-        <label for="pomodoro-task-select" style="font-weight:600;">Working on:</label>
-        <select id="pomodoro-task-select" style="margin-left:8px; padding:6px 10px; border-radius:6px;"></select>
+    
+    <div id="session-label" class="pomodoro-session-label">Work Session</div>
+    
+    <div class="task-selection">
+        <label for="pomodoro-task-select">Working on:</label>
+        <select id="pomodoro-task-select">
+            <option value="">Select a task...</option>
+        </select>
     </div>
+    
     <div class="pomodoro-btn-row">
         <button class="pomodoro-btn" onclick="startTimer()">Start</button>
         <button class="pomodoro-btn" id="pause-btn" onclick="pauseTimer()">Pause</button>
         <button class="pomodoro-btn reset" onclick="resetTimer()">Reset</button>
-        <button id="settings-btn" class="pomodoro-btn">&#9881;</button>
-        <a href="{{ url_for('todo_routes.pomodoro_games') }}" class="pomodoro-btn" id="games-btn" style="background:linear-gradient(135deg,#43e97b 0%,#4f8cff 100%);" tabindex="-1" aria-disabled="true" title="Games are only available during breaks">Games</a>
+        <button id="settings-btn" class="pomodoro-btn" title="Settings">⚙️</button>
+        <a href="{{ url_for('todo_routes.pomodoro_games') }}" class="pomodoro-btn" id="games-btn" title="Games are only available during breaks">🎮 Games</a>
     </div>
+    
     <div class="pomodoro-cycle-info">
         <span id="cycle-info">Pomodoro 1 of 4</span>
     </div>
@@ -52,22 +67,29 @@
         <span class="pomodoro-close" id="close-settings">&times;</span>
         <h2>Pomodoro Settings</h2>
         <form id="pomodoro-settings-form">
-            <label>Work Duration (minutes): <input type="number" min="1" max="90" id="work-duration" required></label><br>
-            <label>Short Break (minutes): <input type="number" min="1" max="30" id="short-break-duration" required></label><br>
-            <label>Long Break (minutes): <input type="number" min="1" max="60" id="long-break-duration" required></label><br>
-            <label>Pomodoros before Long Break: <input type="number" min="1" max="10" id="cycles-before-long" required></label><br>
-            <label>Sound:
-                <select id="sound-select">
-                    <option value="bell">Bell</option>
-                    <option value="chime">Chime</option>
-                    <option value="beep">Beep</option>
-                    <option value="none">None</option>
-                </select>
-            </label>
-            <br>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button type="submit" class="pomodoro-btn">Save</button>
-                <button type="button" class="pomodoro-btn reset" id="default-settings-btn" style="background:linear-gradient(135deg,#bdbdbd 0%,#757575 100%);">Default</button>
+            <label for="work-duration">Work Duration (minutes)</label>
+            <input type="number" min="1" max="90" id="work-duration" required value="25">
+            
+            <label for="short-break-duration">Short Break (minutes)</label>
+            <input type="number" min="1" max="30" id="short-break-duration" required value="5">
+            
+            <label for="long-break-duration">Long Break (minutes)</label>
+            <input type="number" min="1" max="60" id="long-break-duration" required value="15">
+            
+            <label for="cycles-before-long">Pomodoros before Long Break</label>
+            <input type="number" min="1" max="10" id="cycles-before-long" required value="4">
+            
+            <label for="sound-select">Sound Notification</label>
+            <select id="sound-select">
+                <option value="bell">Bell</option>
+                <option value="chime">Chime</option>
+                <option value="beep">Beep</option>
+                <option value="none">None</option>
+            </select>
+            
+            <div class="modal-buttons">
+                <button type="submit" class="pomodoro-btn">Save Settings</button>
+                <button type="button" class="pomodoro-btn reset" id="default-settings-btn">Reset to Default</button>
             </div>
         </form>
     </div>
@@ -85,7 +107,7 @@
         .then(resp => resp.json())
         .then(data => {
             const select = document.getElementById('pomodoro-task-select');
-            select.innerHTML = '';
+            select.innerHTML = '<option value="">Select a task...</option>';
             if (data && data.tasks && data.tasks.length > 0) {
                 data.tasks.forEach(task => {
                     const opt = document.createElement('option');
@@ -99,12 +121,18 @@
                 opt.textContent = 'No tasks available';
                 select.appendChild(opt);
             }
+        })
+        .catch(error => {
+            console.error('Error fetching tasks:', error);
+            const select = document.getElementById('pomodoro-task-select');
+            select.innerHTML = '<option value="">Error loading tasks</option>';
         });
 
     // --- Games Button Enable/Disable Logic ---
     function updateGamesButtonState(mode) {
         const gamesBtn = document.getElementById('games-btn');
         if (!gamesBtn) return;
+        
         if (mode === "shortBreak" || mode === "longBreak") {
             gamesBtn.classList.remove('disabled');
             gamesBtn.removeAttribute('aria-disabled');
@@ -126,6 +154,7 @@
             window.updatePopoutGamesButtonState(mode);
         }
     }
+    
     // Initial state
     document.addEventListener("DOMContentLoaded", function() {
         // Try to get mode from localStorage
