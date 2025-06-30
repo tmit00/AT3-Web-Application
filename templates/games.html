@@ -234,15 +234,25 @@ function updateBreakTimerDisplay() {
             timeLeft = Math.max(0, timeLeft - elapsed);
         }
         
-        if (timeLeft > 0 && (state.mode === "shortBreak" || state.mode === "longBreak")) {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        const isBreakMode = (state.mode === "shortBreak" || state.mode === "longBreak");
+        
+        if (isBreakMode) {
             const modeText = state.mode === "shortBreak" ? "Break" : "Long Break";
             
-            breakTimeLeft.textContent = `${modeText} time: ${timeStr}`;
+            if (timeLeft > 0) {
+                // Timer is still running
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                breakTimeLeft.textContent = `${modeText} time: ${timeStr}`;
+            } else {
+                // Timer has finished
+                breakTimeLeft.textContent = `${modeText} Finished`;
+            }
+            
             breakTimerDisplay.style.display = 'block';
         } else {
+            // Not in break mode, hide the display
             breakTimerDisplay.style.display = 'none';
         }
     } catch (e) {
@@ -279,12 +289,46 @@ function startBreakTimerMonitoring() {
         }
         
         updateBreakTimerDisplay();
+        
+        // Check if game access is still allowed
         if (!checkGameAccess()) {
             if (!breakTimeExpired) {
                 handleBreakExpiration();
             }
         }
     }, 500); // Check every half second for more responsive detection
+}
+
+// Additional monitoring specifically for break expiration
+function startBreakExpirationMonitoring() {
+    setInterval(() => {
+        // Only check if we haven't already determined break has expired
+        if (!breakTimeExpired) {
+            const stateStr = localStorage.getItem('pomodoroTimerState');
+            if (stateStr) {
+                try {
+                    const state = JSON.parse(stateStr);
+                    let timeLeft = state.timeLeft || 0;
+                    
+                    // Calculate actual time left if timer is running
+                    if (state.running && !state.paused && state.timestamp) {
+                        const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+                        timeLeft = Math.max(0, timeLeft - elapsed);
+                    }
+                    
+                    // Check if break has expired
+                    const isBreakMode = (state.mode === "shortBreak" || state.mode === "longBreak");
+                    if (isBreakMode && timeLeft <= 0) {
+                        console.log('Break time has expired');
+                        breakTimeExpired = true;
+                        handleBreakExpiration();
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse timer state for expiration check:', e);
+                }
+            }
+        }
+    }, 1000); // Check every second for break expiration
 }
 
 function getRandomFoodPosition() {
@@ -366,6 +410,23 @@ function gameLoop() {
     if (gameOver) {
         // Stop background music when game is over
         backgroundMusic.pause();
+        
+        // Check if break has expired while on game over screen
+        if (breakTimeExpired) {
+            handleBreakExpiration();
+            return;
+        }
+        
+        // Draw game over screen only if break hasn't expired
+        if (!breakTimeExpired) {
+            drawGameOver();
+        }
+        return;
+    }
+    
+    // Check if break has expired during gameplay
+    if (breakTimeExpired) {
+        handleBreakExpiration();
         return;
     }
     
@@ -432,6 +493,12 @@ function gameLoop() {
 }
 
 function startGame() {
+    // Check if break has expired before starting game
+    if (breakTimeExpired) {
+        handleBreakExpiration();
+        return;
+    }
+    
     // Initialize game state
     snake = [{x: 160, y: 200}, {x: 140, y: 200}, {x: 120, y: 200}];
     direction = "RIGHT";
@@ -457,13 +524,23 @@ function startGame() {
 }
 
 function restartGame() {
+    // Check if break has expired before allowing restart
+    if (breakTimeExpired) {
+        handleBreakExpiration();
+        return;
+    }
+    
     if (game) clearInterval(game);
     startGame();
 }
 
 // Event listeners
 document.addEventListener('keydown', function(e) {
-    if (gameOver) return;
+    if (gameOver) {
+        // If break has expired, don't allow any key input
+        if (breakTimeExpired) return;
+        return;
+    }
     
     switch(e.key) {
         case "ArrowUp":
@@ -481,7 +558,15 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-document.getElementById('restartBtn').addEventListener('click', restartGame);
+document.getElementById('restartBtn').addEventListener('click', function() {
+    // Check if break has expired before allowing restart
+    if (breakTimeExpired) {
+        handleBreakExpiration();
+        return;
+    }
+    restartGame();
+});
+
 toggleMusicBtn.addEventListener('click', toggleMusic);
 toggleSoundBtn.addEventListener('click', toggleSound);
 
@@ -499,6 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Start monitoring
     startBreakTimerMonitoring();
+    startBreakExpirationMonitoring();
     
     // Update timer display
     updateBreakTimerDisplay();
