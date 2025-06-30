@@ -20,7 +20,11 @@
                 <canvas id="snakeGame" width="340" height="400"></canvas>
                 <div id="countdownOverlay" class="snake-countdown-overlay"></div>
             </div>
-            <button id="restartBtn" class="snake-restart-btn">Restart Game</button>
+            <div class="game-controls">
+                <button id="restartBtn" class="snake-restart-btn">Restart Game</button>
+                <button id="toggleMusicBtn" class="music-toggle-btn">🔇 Music</button>
+                <button id="toggleSoundBtn" class="sound-toggle-btn">🔊 Sound</button>
+            </div>
         </div>
     </div>
     
@@ -32,16 +36,47 @@
     </div>
 </div>
 
+<!-- Audio elements -->
+<audio id="eatSound" preload="auto">
+    <source src="{{ url_for('static', filename='audio/food_G1U6tlb.mp3') }}" type="audio/mpeg">
+</audio>
+<audio id="deathSound" preload="auto">
+    <source src="{{ url_for('static', filename='audio/videogame-death-sound-43894.mp3') }}" type="audio/mpeg">
+</audio>
+<audio id="backgroundMusic" preload="auto" loop>
+    <source src="{{ url_for('static', filename='audio/Tetris.mp3') }}" type="audio/mpeg">
+</audio>
+
 <script>
-// Simple Snake Game in JavaScript with Restart, High Score, Countdown, and Safe Food Spawn
+// Enhanced Snake Game with Progressive Speed, Sound Effects, and Background Music
 const canvas = document.getElementById('snakeGame');
 const ctx = canvas.getContext('2d');
 const box = 20;
+
+// Game state variables
 let snake, direction, nextDirection, food, score, game, gameOver;
 let highScore = localStorage.getItem('snakeHighScore') ? parseInt(localStorage.getItem('snakeHighScore')) : 0;
 const highscoreDiv = document.getElementById('highscore');
 const countdownOverlay = document.getElementById('countdownOverlay');
 let countdownTimeout, countdownValue;
+
+// Speed and progression variables
+let currentSpeed = 150; // Start slower (150ms between moves)
+let baseSpeed = 150;
+let speedIncreaseInterval = 50; // Increase speed every 50 points
+let maxSpeed = 50; // Fastest speed (50ms between moves)
+let speedLevel = 0;
+
+// Audio variables
+const eatSound = document.getElementById('eatSound');
+const deathSound = document.getElementById('deathSound');
+const backgroundMusic = document.getElementById('backgroundMusic');
+let musicEnabled = localStorage.getItem('snakeMusicEnabled') !== 'false'; // Default enabled
+let soundEnabled = localStorage.getItem('snakeSoundEnabled') !== 'false'; // Default enabled
+
+// Audio controls
+const toggleMusicBtn = document.getElementById('toggleMusicBtn');
+const toggleSoundBtn = document.getElementById('toggleSoundBtn');
 
 // Break timer monitoring
 let breakTimerMonitor = null;
@@ -53,6 +88,60 @@ const breakTimeLeft = document.getElementById('break-time-left');
 
 function updateHighScoreDisplay() {
     highscoreDiv.textContent = "High Score: " + highScore;
+}
+
+function updateAudioControls() {
+    toggleMusicBtn.textContent = musicEnabled ? "🔊 Music" : "🔇 Music";
+    toggleSoundBtn.textContent = soundEnabled ? "🔊 Sound" : "🔇 Sound";
+    
+    if (musicEnabled && !gameOver) {
+        backgroundMusic.play().catch(e => console.log('Background music play failed:', e));
+    } else {
+        backgroundMusic.pause();
+    }
+}
+
+function toggleMusic() {
+    musicEnabled = !musicEnabled;
+    localStorage.setItem('snakeMusicEnabled', musicEnabled);
+    updateAudioControls();
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('snakeSoundEnabled', soundEnabled);
+    updateAudioControls();
+}
+
+function playEatSound() {
+    if (soundEnabled) {
+        eatSound.currentTime = 0;
+        eatSound.play().catch(e => console.log('Eat sound play failed:', e));
+    }
+}
+
+function playDeathSound() {
+    if (soundEnabled) {
+        deathSound.currentTime = 0;
+        deathSound.play().catch(e => console.log('Death sound play failed:', e));
+    }
+}
+
+function calculateSpeed() {
+    // Calculate speed based on score
+    // Start at 150ms, decrease by 10ms every 50 points, minimum 50ms
+    const newSpeedLevel = Math.floor(score / speedIncreaseInterval);
+    if (newSpeedLevel > speedLevel) {
+        speedLevel = newSpeedLevel;
+        currentSpeed = Math.max(maxSpeed, baseSpeed - (speedLevel * 10));
+        
+        // Restart game loop with new speed
+        if (game && !gameOver) {
+            clearInterval(game);
+            game = setInterval(gameLoop, currentSpeed);
+        }
+    }
+    return currentSpeed;
 }
 
 // Check if game access is allowed based on timer state
@@ -96,6 +185,9 @@ function handleBreakExpiration() {
     if (game) clearInterval(game);
     gameOver = true;
     breakTimeExpired = true;
+    
+    // Stop background music
+    backgroundMusic.pause();
     
     // Show break expired message
     ctx.fillStyle = "#1a202c";
@@ -241,6 +333,10 @@ function drawScore() {
     ctx.font = "20px Inter, Arial, sans-serif";
     ctx.textAlign = "left";
     ctx.fillText("Score: " + score, 10, 30);
+    
+    // Show speed level
+    ctx.font = "14px Inter, Arial, sans-serif";
+    ctx.fillText("Speed: Level " + speedLevel, 10, 50);
 }
 
 function drawGameOver() {
@@ -267,7 +363,11 @@ function drawGameOver() {
 }
 
 function gameLoop() {
-    if (gameOver) return;
+    if (gameOver) {
+        // Stop background music when game is over
+        backgroundMusic.pause();
+        return;
+    }
     
     // Update direction
     direction = nextDirection;
@@ -285,12 +385,16 @@ function gameLoop() {
     // Check collision with walls
     if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
         gameOver = true;
+        backgroundMusic.pause();
+        playDeathSound();
         return;
     }
     
     // Check collision with self
     if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
         gameOver = true;
+        backgroundMusic.pause();
+        playDeathSound();
         return;
     }
     
@@ -300,6 +404,12 @@ function gameLoop() {
     if (head.x === food.x && head.y === food.y) {
         score += 10;
         food = getRandomFoodPosition();
+        
+        // Play eat sound
+        playEatSound();
+        
+        // Update speed based on score
+        calculateSpeed();
         
         // Update high score
         if (score > highScore) {
@@ -330,11 +440,20 @@ function startGame() {
     score = 0;
     gameOver = false;
     
+    // Reset speed
+    currentSpeed = baseSpeed;
+    speedLevel = 0;
+    
     // Clear any existing game loop
     if (game) clearInterval(game);
     
     // Start game loop
-    game = setInterval(gameLoop, 100);
+    game = setInterval(gameLoop, currentSpeed);
+    
+    // Start background music if enabled
+    if (musicEnabled) {
+        backgroundMusic.play().catch(e => console.log('Background music play failed:', e));
+    }
 }
 
 function restartGame() {
@@ -363,10 +482,13 @@ document.addEventListener('keydown', function(e) {
 });
 
 document.getElementById('restartBtn').addEventListener('click', restartGame);
+toggleMusicBtn.addEventListener('click', toggleMusic);
+toggleSoundBtn.addEventListener('click', toggleSound);
 
 // Initialize game
 document.addEventListener('DOMContentLoaded', function() {
     updateHighScoreDisplay();
+    updateAudioControls();
     
     // Check initial access
     if (!checkGameAccess()) {
