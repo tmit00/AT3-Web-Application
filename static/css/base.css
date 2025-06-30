@@ -8,7 +8,7 @@ body {
     padding: 0;
     display: flex;
     min-height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
     color: #1a202c;
     line-height: 1.6;
 }
@@ -20,9 +20,13 @@ body {
     height: 100vh;
     padding: 24px 16px 0 16px;
     box-shadow: 2px 0 16px rgba(0,0,0,0.08);
-    position: relative;
+    position: fixed;
+    left: 0;
+    top: 0;
     flex-direction: column;
     justify-content: space-between;
+    overflow-y: auto;
+    z-index: 1000;
 }
 
 .sidebar h2 {
@@ -63,6 +67,31 @@ body {
     padding: 40px 32px;
     position: relative;
     min-height: 100vh;
+    margin-left: 250px;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+/* Mobile menu toggle button */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: all 0.2s ease;
+}
+
+.mobile-menu-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
 h1 {
@@ -476,6 +505,10 @@ td {
     color: #1a202c;
     margin: 0 0 0.5rem 0;
     line-height: 1.4;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .task-description {
@@ -483,6 +516,10 @@ td {
     font-size: 0.875rem;
     margin: 0;
     line-height: 1.5;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .task-status {
@@ -1065,6 +1102,8 @@ td {
   margin: 0 auto;
   padding: 2rem;
   width: 100%;
+  min-height: calc(100vh - 80px);
+  overflow-y: visible;
 }
 
 .dashboard-header {
@@ -1226,8 +1265,30 @@ td {
 /* Tasks Table */
 .tasks-table-container {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 60vh;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
+}
+
+/* Custom scrollbar for tasks table */
+.tasks-table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tasks-table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.tasks-table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.tasks-table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .tasks-table {
@@ -1267,11 +1328,15 @@ td {
 .task-title {
   font-weight: 600;
   color: #1a202c;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .task-description {
   color: #64748b;
-  max-width: 300px;
+  max-width: 250px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1422,6 +1487,26 @@ td {
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 1rem;
+    margin-left: 0;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding: 20px 16px;
+    padding-top: 80px; /* Make room for mobile menu button */
+  }
+  
+  .mobile-menu-toggle {
+    display: block;
+  }
+  
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
   }
   
   .dashboard-header {
@@ -1455,6 +1540,10 @@ td {
   
   .task-description {
     max-width: 200px;
+  }
+  
+  .tasks-table-container {
+    max-height: 50vh;
   }
 }
 

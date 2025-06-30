@@ -112,7 +112,10 @@
                 data.tasks.forEach(task => {
                     const opt = document.createElement('option');
                     opt.value = task.id;
-                    opt.textContent = task.title;
+                    // Truncate task title if it's too long (max 40 characters)
+                    const truncatedTitle = task.title.length > 40 ? task.title.substring(0, 37) + '...' : task.title;
+                    opt.textContent = truncatedTitle;
+                    opt.title = task.title; // Show full title on hover
                     select.appendChild(opt);
                 });
             } else {

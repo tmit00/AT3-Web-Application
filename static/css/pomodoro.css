@@ -135,6 +135,7 @@
   color: #1a202c;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 200px;
+  max-width: 300px;
 }
 
 #pomodoro-task-select:focus {
@@ -142,6 +143,14 @@
   border-color: #667eea;
   background: #fff;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Limit dropdown option text width */
+#pomodoro-task-select option {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Button Row */

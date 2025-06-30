@@ -142,7 +142,12 @@
         }
         
         // Update task info
-        if (popoutTaskName) popoutTaskName.textContent = selectedTaskName;
+        if (popoutTaskName) {
+            // Truncate task name if it's too long (max 25 characters for popout)
+            const truncatedTaskName = selectedTaskName.length > 25 ? selectedTaskName.substring(0, 22) + '...' : selectedTaskName;
+            popoutTaskName.textContent = truncatedTaskName;
+            popoutTaskName.title = selectedTaskName; // Show full name on hover
+        }
         if (popoutTaskInfo) {
             popoutTaskInfo.style.display = selectedTaskId ? "block" : "none";
         }
