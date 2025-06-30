@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, Blueprint, session, jsonify
+from flask import Flask, render_template, url_for, redirect, request, Blueprint, session, jsonify, flash
 from data import db, Task
 from task import user_create_task, user_mark_complete, user_delete_task
 from datetime import datetime
@@ -15,17 +15,71 @@ todo_routes = Blueprint('todo_routes', __name__)
 def create_task():
     if 'user' not in session:
         return redirect(url_for('login'))
+    
+    # Get current date for min attribute in date input
+    from datetime import date as date_today
+    today = date_today.today().strftime('%Y-%m-%d')
+    
     if request.method == 'POST': 
-        title = request.form.get('title')
-        description = request.form.get('description')
-        date_str = request.form.get('date')  # e.g. "2025-05-23"
-        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else None
+        title = request.form.get('title', '').strip()
+        description = request.form.get('description', '').strip()
+        date_str = request.form.get('date', '').strip()
+        
+        # Validate required fields
+        if not title:
+            flash('Task title is required.', 'error')
+            return render_template('create_task.html', 
+                                 title=title, 
+                                 description=description, 
+                                 date=date_str,
+                                 today=today)
+        
+        # Handle date parsing with error handling
+        date_obj = None
+        if date_str:
+            try:
+                # Parse the date string
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+                
+                # Check if date is too far in the future (optional: limit to 10 years)
+                today_date = date_today.today()
+                max_future_date = today_date.replace(year=today_date.year + 10)
+                if date_obj > max_future_date:
+                    flash('Due date cannot be more than 10 years in the future.', 'error')
+                    return render_template('create_task.html', 
+                                         title=title, 
+                                         description=description, 
+                                         date=date_str,
+                                         today=today)
+                
+            except ValueError:
+                flash('Invalid date format. Please use YYYY-MM-DD format (e.g., 2025-12-25).', 'error')
+                return render_template('create_task.html', 
+                                     title=title, 
+                                     description=description, 
+                                     date=date_str,
+                                     today=today)
+            except Exception as e:
+                flash(f'Error processing date: {str(e)}. Please try again.', 'error')
+                return render_template('create_task.html', 
+                                     title=title, 
+                                     description=description, 
+                                     date=date_str,
+                                     today=today)
 
-        user_create_task(title, description, date_obj)
-
-        return redirect(url_for('dashboard'))
+        try:
+            user_create_task(title, description, date_obj)
+            flash('Task created successfully!', 'success')
+            return redirect(url_for('dashboard'))
+        except Exception as e:
+            flash(f'Error creating task: {str(e)}. Please try again.', 'error')
+            return render_template('create_task.html', 
+                                 title=title, 
+                                 description=description, 
+                                 date=date_str,
+                                 today=today)
     else: 
-        return render_template('create_task.html')
+        return render_template('create_task.html', today=today)
 
 # Mark as complete (instant action)
 @todo_routes.route('/mark_complete/<int:task_id>', methods=['POST'])

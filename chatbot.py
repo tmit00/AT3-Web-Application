@@ -432,7 +432,7 @@ class Chatbot:
         
         return text
     
-    def truncate_to_word_limit(self, text, word_limit=150):
+    def truncate_to_word_limit(self, text, word_limit=100):
         """
         Truncate text to a specific word limit
         
@@ -571,8 +571,8 @@ class Chatbot:
             # Clean the response by removing markdown formatting
             clean_response = self.strip_markdown(response.text)
             
-            # Truncate the response to 150 words
-            truncated_response, is_truncated, full_response = self.truncate_to_word_limit(clean_response, 150)
+            # Truncate the response to 100 words
+            truncated_response, is_truncated, full_response = self.truncate_to_word_limit(clean_response, 100)
             
             # Add assistant response to conversation history (use full response for context)
             self.conversation_history.append({"role": "assistant", "parts": [full_response]})
