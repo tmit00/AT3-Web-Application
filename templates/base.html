@@ -13,16 +13,48 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>Menu</h2>
-        <ul>
-            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('calendar_routes.calendar_server') }}">Calendar</a></li>
-            <li><a href="{{ url_for('todo_routes.pomodoro') }}">Pomodoro Timer</a></li>
-            <li><a href="{{ url_for('todo_routes.chatbot') }}">AI Chatbot</a></li>
-        </ul>
-        <!-- Logout button at the bottom -->
-        <div class="logout-container">
-            <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+        <div class="sidebar-header">
+            <h2>FocusFlow</h2>
+            <div class="sidebar-subtitle">Productivity Suite</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('calendar_routes.calendar_server') }}" class="nav-link">
+                        <span class="nav-icon">📅</span>
+                        <span class="nav-text">Calendar</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('todo_routes.pomodoro') }}" class="nav-link">
+                        <span class="nav-icon">⏱️</span>
+                        <span class="nav-text">Pomodoro Timer</span>
+                        <span class="nav-badge">Focus</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('todo_routes.chatbot') }}" class="nav-link">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-text">AI Assistant</span>
+                        <span class="nav-badge">New</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="logout-container">
+                <a href="{{ url_for('logout') }}" class="logout-button">
+                    <span>Logout</span>
+                </a>
+            </div>
         </div>
     </div>
     <div class="main-content">
@@ -86,9 +118,33 @@
             const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
             const sidebar = document.querySelector('.sidebar');
             
+            // Set active navigation state based on current page
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+            
             if (mobileMenuToggle && sidebar) {
+                // Create overlay for mobile
+                const overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+                
                 mobileMenuToggle.addEventListener('click', function() {
                     sidebar.classList.toggle('open');
+                    overlay.classList.toggle('active');
+                    document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+                });
+                
+                // Close sidebar when clicking on overlay
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
                 });
                 
                 // Close sidebar when clicking on a link
@@ -96,13 +152,17 @@
                 sidebarLinks.forEach(link => {
                     link.addEventListener('click', function() {
                         sidebar.classList.remove('open');
+                        overlay.classList.remove('active');
+                        document.body.style.overflow = '';
                     });
                 });
                 
-                // Close sidebar when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (!sidebar.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+                // Close sidebar when pressing Escape key
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape' && sidebar.classList.contains('open')) {
                         sidebar.classList.remove('open');
+                        overlay.classList.remove('active');
+                        document.body.style.overflow = '';
                     }
                 });
             }
