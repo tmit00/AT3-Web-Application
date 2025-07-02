@@ -104,6 +104,26 @@ class Chatbot:
         
         return suggestions
     
+    def extract_task_title(self, raw_title):
+        """
+        Extract a concise task title from a natural language phrase.
+        E.g., 'reminding me to clean the dishes' -> 'clean the dishes'
+        """
+        # Remove common leading phrases
+        patterns = [
+            r'^(reminding|remind) (me )?(to )?',
+            r'^(i )?need to ',
+            r'^(please )?(create|add|make|schedule|set up|start) (a |the |an )?(task|reminder|event)?( for me)?( to)? ',
+            r'^(to )?',
+        ]
+        title = raw_title.strip()
+        for pattern in patterns:
+            title = re.sub(pattern, '', title, flags=re.IGNORECASE).strip()
+        # Remove trailing punctuation
+        title = re.sub(r'[.!?]+$', '', title)
+        # If the result is empty, fallback to original
+        return title if title else raw_title.strip()
+    
     def parse_task_action(self, message):
         """
         Parse user message to detect task-related actions with enhanced patterns
@@ -192,7 +212,9 @@ class Chatbot:
         for pattern in create_patterns:
             match = re.search(pattern, message_lower)
             if match:
-                title = match.group(1).strip()
+                raw_title = match.group(1).strip()
+                # Use the new extraction function for concise title
+                title = self.extract_task_title(raw_title)
                 # Extract description and date if provided
                 description = None
                 date_obj = None
