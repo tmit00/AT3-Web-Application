@@ -191,11 +191,14 @@ function resetTimer() {
 
 function nextSession() {
     if (mode === "work") {
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
         // Notify server of completed Pomodoro
         fetch('/api/pomodoro/complete', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: 'minutes=' + encodeURIComponent(settings.work)
+            body: 'minutes=' + encodeURIComponent(settings.work) + '&csrf_token=' + encodeURIComponent(csrfToken)
         });
         if (cycle < settings.cyclesBeforeLong) {
             mode = "shortBreak";

@@ -5,6 +5,7 @@ import requests
 import certifi
 import ssl
 from flask import Flask, render_template, url_for, redirect, request, session, flash, jsonify
+from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 from datetime import datetime, date
 from data import db, Task, User
@@ -28,6 +29,13 @@ session_requests.verify = False  # Development only
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///example_test_db.db')
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
+
+# Configure CSRF to accept tokens from X-CSRFToken header for AJAX requests
+app.config['WTF_CSRF_TIME_LIMIT'] = None  # Optional: remove time limit
+app.config['WTF_CSRF_HEADERS'] = ['X-CSRFToken', 'X-CSRF-Token']
 
 # Google OAuth config
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID').strip()

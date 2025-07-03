@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}My Application{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 
@@ -166,6 +167,25 @@
                     }
                 });
             }
+        });
+
+        // CSRF Token helper function
+        function getCSRFToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+
+        // Add CSRF token to all forms automatically
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form:not([data-no-csrf])');
+            forms.forEach(function(form) {
+                if (!form.querySelector('input[name="csrf_token"]')) {
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrf_token';
+                    csrfInput.value = getCSRFToken();
+                    form.appendChild(csrfInput);
+                }
+            });
         });
     </script>
 </body>
